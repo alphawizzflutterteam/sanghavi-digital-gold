@@ -50,41 +50,13 @@ class _MySplshScreen extends State<MySplshScreen> {
 
 
   ApiBaseHelper apiBase = new ApiBaseHelper();
-  getLivePrice() async {
-    try {
-      // setState(() {
-      //   cartList.clear();
-      // });
-      Map params = {
-        // "get_user_cart": "1",
-        // "user_id": App.localStorage.getString("userId").toString(),
-      };
-      Map response = await apiBase.postAPICall(
-          Uri.parse(livePrice), params);
-      if (response.isNotEmpty) {
-        context.read<LivePriceProvider>().setGold916(response['data']['916_gold_charge'].toString());
-        context.read<LivePriceProvider>().setGold999(response['data']['999_gold_charge'].toString());
-        // cartList.clear();
-        // for (var v in response['cart_data']) {
-        //   setState(() {
-        //     cartList.add(CartData.fromJson(v));
-        //   });
-        // }
-        // totalCount = cartList.length;
-        print("gold-916 is@@ ${response['data']['916_gold_charge'].toString()}");
-        print("gold-999 is** ${response['data']['999_gold_charge'].toString()}");
-      }
-    } on TimeoutException catch (_) {
-      setSnackbar("Something Went Wrong", context);
-      setState(() {});
-    }
-  }
+
+
 
   @override
   void initState() {
     super.initState();
     getBaneerHomeScreen();
-    getLivePrice();
     final pushNotificationService = PushNotificationService(
         context: context);
     pushNotificationService.initialise();
@@ -93,6 +65,7 @@ class _MySplshScreen extends State<MySplshScreen> {
             () {
           changePage(context);
         } );
+
 
   }
   final LocalAuthentication auth = LocalAuthentication();
@@ -235,6 +208,7 @@ class _MySplshScreen extends State<MySplshScreen> {
   }
   @override
   Widget build(BuildContext context) {
+    Provider.of<LivePriceProvider>(context).getLivePrice(context);
      return Container(
       alignment: Alignment.center,
       height: MediaQuery.of(context).size.height * 0.1,
@@ -252,7 +226,7 @@ class _MySplshScreen extends State<MySplshScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
-            'assets/splash/attica.png',
+            'assets/loginpage/attica.png',
             width: 280,
           ),
         ],

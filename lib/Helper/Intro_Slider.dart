@@ -212,7 +212,7 @@ class _GettingStartedScreenState extends State<IntroSlider>
   Widget build(BuildContext context) {
     var deviceHeight = MediaQuery.of(context).size.height;
    // deviceWidth = MediaQuery.of(context).size.width;
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
 
     return Scaffold(
         body: SafeArea(

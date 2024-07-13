@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:math';
+import 'dart:io';
 
 import 'package:atticadesign/Helper/sellSilverModel.dart';
+import 'package:atticadesign/Model/adminCommissionModel.dart';
 import 'package:atticadesign/Model/pruchaseModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -420,15 +422,18 @@ Future<TransationModeOnlyAmount?> getTransationCash(String? userId) async {
   request.fields.addAll({
     'user_id': App.localStorage.getString("userId").toString(),
     'transaction_type':"wallet",
-    'type':"debit",
+    //'type':"debit",
   });
   request.headers.addAll(headers);
+
+  print("${request.url}_________");
+  print("${request.fields}");
 
   http.StreamedResponse response = await request.send();
 
   if (response.statusCode == 200) {
     final str = await response.stream.bytesToString();
-    print(str);
+    print('dfsdfsf_____${str}');
     return TransationModeOnlyAmount.fromJson(json.decode(str));
   } else {
     return transationMode;
@@ -638,7 +643,7 @@ Future<NumberModel?> changeNumber(String mobile) async {
 }
 
 Future<PruchaseModel?> purchaseGold(
-    userId, buyAmount, gramValue, isGold, context) async {
+    userId, buyAmount, gramValue, isGold, context,walletAmount) async {
   String goldurl = baseUrl1 + "pruchase_gold";
   String silveryrl = baseUrl1 + "purchase_sliver";
   var request =
@@ -648,7 +653,8 @@ Future<PruchaseModel?> purchaseGold(
     'user_id': userId,
     'razorpay_payment_id': razorPayKey,
     'buy_amount': buyAmount,
-    'gold': '$gramValue'
+    'gold': '$gramValue',
+    'wallet_amount': walletAmount,
   });
 
   print("this is buy gold request ======>>>>  ${request.fields.toString()}");
@@ -726,6 +732,27 @@ Future<GetNotificationModel?> getNotification() async{
     final str = await response.stream.bytesToString();
     print(str);
     return GetNotificationModel.fromJson(json.decode(str));
+  } else {
+    return null;
+  }
+
+}
+
+Future<AdminCommissionResponse?> getAdminCommission() async{
+  var headers = {
+    'Cookie': 'ci_session=5gueac7g05v5t12tbt7nluvihoai58q3'
+  };
+  var request = http.Request('POST',
+      Uri.parse(baseUrl1 + 'get_selling_commission_settings'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    final str = await response.stream.bytesToString();
+    print(str);
+    return AdminCommissionResponse.fromJson(json.decode(str));
   } else {
     return null;
   }

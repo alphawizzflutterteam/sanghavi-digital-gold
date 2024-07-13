@@ -177,7 +177,7 @@ class _PinScreenState extends State<PinScreen> {
                     width: 160,
                     child: Center(
                       child: Text(
-                        "SetM Pin",
+                        "Set Mpin",
                         style: TextStyle(color: colors.white1, fontSize: 15),
                       ),
                     ),

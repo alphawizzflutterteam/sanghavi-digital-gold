@@ -15,9 +15,9 @@ import '../Utils/Common.dart';
 
 class AddOrderReview extends StatefulWidget {
   OrderModel model;
+  BuildContext? ctx;
 
-
-  AddOrderReview(this.model);
+  AddOrderReview(this.model,  this.ctx);
 
   @override
   State<AddOrderReview> createState() => _AddOrderReviewState();
@@ -30,8 +30,9 @@ class _AddOrderReviewState extends State<AddOrderReview> {
   double value = 4.5;
   TextEditingController controller =new TextEditingController();
   List<String> productId = [];
-  
-  
+
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   giveFeedbackApi() async {
     try {
       setState(() {
@@ -66,109 +67,120 @@ class _AddOrderReviewState extends State<AddOrderReview> {
   }
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: getWidth(10),vertical: getHeight(20)),
-          decoration: boxDecoration(radius: 20,bgColor: colors.secondary2),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                alignment: Alignment.centerRight,
-                child: InkWell(
-                  onTap: () => Navigator.pop(context),
-                  child: Icon(
-                    Icons.clear,
-                    color: MyColorName.colorBg1,
+    return Scaffold(
+      key: _scaffoldKey,
+      body: Dialog(
+        backgroundColor: Colors.transparent,
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: getWidth(10),vertical: getHeight(20)),
+            decoration: boxDecoration(radius: 20,bgColor: colors.secondary2),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(
+                      Icons.clear,
+                      color: MyColorName.colorBg1,
+                    ),
                   ),
                 ),
-              ),
-              Image.asset(
-                'assets/order_feedback.png',
-                height: getHeight(208),
-              ),
-              boxHeight(25),
-              text(
-                'Customer Feedback is really important to us Please Tell us how Was your experience',
-                fontFamily: fontRegular,
-                textColor: MyColorName.colorEdit,
-                isCentered: true,
-              ),
-              boxHeight(20),
-              RatingBar.builder(
-                initialRating: value,
-                minRating: 1,
-                direction: Axis.horizontal,
-                allowHalfRating: true,
-                itemCount: 5,
-                itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  color: Colors.amber,
-                  size: 5.w,
+                Image.asset(
+                  'assets/order_feedback.png',
+                  height: getHeight(208),
                 ),
-                onRatingUpdate: (rating) {
-                  setState(() {
-                    value = rating;
-                  });
-                  print(rating);
-                },
-              ),
-              boxHeight(10),
-              Container(
-                  alignment: Alignment.center,
-                  child: text('Great !', textColor: Colors.green)),
-              boxHeight(20),
-              Container(
-                alignment: Alignment.centerLeft,
-                child: text('Write Comment', fontFamily: fontRegular,
+                boxHeight(25),
+                text(
+                  'Customer Feedback is really important to us Please Tell us how Was your experience',
+                  fontFamily: fontRegular,
                   textColor: MyColorName.colorEdit,
-                  isCentered: false,),
-              ),
-              boxHeight(10),
-              Container(
-                color: colors.secondary2.withOpacity(0.8),
-                child: TextFormField(
+                  isCentered: true,
+                ),
+                boxHeight(20),
+                RatingBar.builder(
+                  initialRating: value,
+                  minRating: 1,
+                  direction: Axis.horizontal,
+                  allowHalfRating: true,
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                  itemBuilder: (context, _) => Icon(
+                    Icons.star,
+                    color: Colors.amber,
+                    size: 5.w,
+                  ),
+                  onRatingUpdate: (rating) {
+                    setState(() {
+                      value = rating;
+                    });
+                    print(rating);
+                  },
+                ),
+                boxHeight(10),
+                Container(
+                    alignment: Alignment.center,
+                    child: text('Great !', textColor: Colors.green)),
+                boxHeight(20),
+                Container(
+                  alignment: Alignment.centerLeft,
+                  child: text('Write Comment', fontFamily: fontRegular,
+                    textColor: MyColorName.colorEdit,
+                    isCentered: false,),
+                ),
+                boxHeight(10),
+                Container(
+                  color: colors.secondary2.withOpacity(0.8),
+                  child: TextFormField(
 
-                  minLines: 5,
-                  maxLines: 15,
-                  controller: controller,
-                  decoration: InputDecoration(
-                    contentPadding: EdgeInsets.all(10)
+                    minLines: 5,
+                    maxLines: 15,
+                    controller: controller,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(10)
+                    ),
                   ),
                 ),
-              ),
-              boxHeight(41),
-              InkWell(
-                onTap: (){
-                  if(controller.text==""){
-                    setSnackbar("Enter Comment", context);
-                    return;
-                  }
-                  giveFeedbackApi();
-                },
-                child: Container(
-                  width: getWidth1(522),
-                  height: getHeight1(68),
-                  decoration: boxDecoration(
-                      radius: 48, bgColor: colors.secondary2,),
-                  child: Center(
-                    child: loading?text(
-                      "Submit",
-                      fontFamily: fontMedium,
-                      textColor: colors.blackTemp,
-                      fontSize: 10.sp,
-                    ):CircularProgressIndicator(color: MyColorName.appbarBg,),
+                boxHeight(41),
+                InkWell(
+                  onTap: (){
+                    if(controller.text==""){
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("Enter Comment"),
+                        duration: Duration(seconds: 2),
+                      ),);
+
+                      //setSnackbar("Enter Comment", widget.ctx!);
+                      return;
+                    }
+                    giveFeedbackApi();
+                  },
+                  child: Container(
+                    width: getWidth1(522),
+                    height: getHeight1(68),
+                    decoration: boxDecoration(
+                        radius: 48, bgColor: colors.secondary2,),
+                    child: Center(
+                      child: loading?text(
+                        "Submit",
+                        fontFamily: fontMedium,
+                        textColor: colors.blackTemp,
+                        fontSize: 10.sp,
+                      ):CircularProgressIndicator(color: MyColorName.appbarBg,),
+                    ),
                   ),
                 ),
-              ),
-              boxHeight(41),
-            ],
+                boxHeight(41),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+
 }

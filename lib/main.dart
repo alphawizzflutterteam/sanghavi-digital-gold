@@ -1,3 +1,4 @@
+
 import 'dart:io';
 
 import 'package:atticadesign/Provider/live_price_provider.dart';
@@ -14,6 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(myForgroundMessageHandler);
+
+
   runApp(
       MultiProvider(
           providers: [

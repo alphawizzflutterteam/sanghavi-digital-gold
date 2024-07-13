@@ -136,7 +136,7 @@ class _OrderListState extends State<OrderList> {
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
                       return OrderView(orderList[index],()async{
-                        var result = await Navigator.push(context, MaterialPageRoute(builder: (context)=>OrderDetailsScreen(orderList[index])));
+                        var result = await Navigator.push(context, MaterialPageRoute(builder: (context)=> OrderDetailsScreen(orderList[index])));
                       },);
                     }),
               )

@@ -97,7 +97,7 @@ class newpage extends StatelessWidget {
                       showTitleActions: true,
                       minTime: DateTime(1947, 3, 5),
                       maxTime: DateTime(2099, 6, 7),
-                      theme: DatePickerTheme(
+                      /*theme: DatePickerTheme(
                           headerColor: Colors.orange,
                           backgroundColor: Colors.blue,
                           itemStyle: TextStyle(
@@ -105,7 +105,7 @@ class newpage extends StatelessWidget {
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                           doneStyle:
-                          TextStyle(color: Colors.white, fontSize: 16)),
+                          TextStyle(color: Colors.white, fontSize: 16))*/
                       onChanged: (date) {
                         print('change $date in time zone ' +
                             date.timeZoneOffset.inHours.toString());

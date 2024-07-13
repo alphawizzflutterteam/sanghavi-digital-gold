@@ -13,7 +13,7 @@ class TransationModeOnlyAmount {
       String? message, 
       String? total, 
       String? balance, 
-      List<Data>? data,}){
+      List<TransactionData>? data,}){
     _error = error;
     _message = message;
     _total = total;
@@ -29,7 +29,7 @@ class TransationModeOnlyAmount {
     if (json['data'] != null) {
       _data = [];
       json['data'].forEach((v) {
-        _data?.add(Data.fromJson(v));
+        _data?.add(TransactionData.fromJson(v));
       });
     }
   }
@@ -37,12 +37,12 @@ class TransationModeOnlyAmount {
   String? _message;
   String? _total;
   String? _balance;
-  List<Data>? _data;
+  List<TransactionData>? _data;
 TransationModeOnlyAmount copyWith({  bool? error,
   String? message,
   String? total,
   String? balance,
-  List<Data>? data,
+  List<TransactionData>? data,
 }) => TransationModeOnlyAmount(  error: error ?? _error,
   message: message ?? _message,
   total: total ?? _total,
@@ -53,7 +53,7 @@ TransationModeOnlyAmount copyWith({  bool? error,
   String? get message => _message;
   String? get total => _total;
   String? get balance => _balance;
-  List<Data>? get data => _data;
+  List<TransactionData>? get data => _data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -84,10 +84,10 @@ TransationModeOnlyAmount copyWith({  bool? error,
 /// transaction_date : "2022-01-20 10:27:48"
 /// date_created : "2022-01-20 10:27:48"
 
-Data dataFromJson(String str) => Data.fromJson(json.decode(str));
-String dataToJson(Data data) => json.encode(data.toJson());
-class Data {
-  Data({
+TransactionData dataFromJson(String str) => TransactionData.fromJson(json.decode(str));
+String dataToJson(TransactionData data) => json.encode(data.toJson());
+class TransactionData {
+  TransactionData({
       String? id, credit, ptype,
       String? transactionType, 
       String? userId, 
@@ -120,7 +120,7 @@ class Data {
     _ptype = ptype;
 }
 
-  Data.fromJson(dynamic json) {
+  TransactionData.fromJson(dynamic json) {
     _id = json['id'];
     _transactionType = json['transaction_type'];
     _userId = json['user_id'];
@@ -153,7 +153,7 @@ class Data {
   String? _message;
   String? _transactionDate;
   String? _dateCreated;
-Data copyWith({  String? id,
+TransactionData copyWith({  String? id,
   String? transactionType,
   String? userId,
   String? ptype,
@@ -169,7 +169,7 @@ Data copyWith({  String? id,
   String? message,
   String? transactionDate,
   String? dateCreated,
-}) => Data(  id: id ?? _id,
+}) => TransactionData(  id: id ?? _id,
   transactionType: transactionType ?? _transactionType,
   userId: userId ?? _userId,
   orderId: orderId ?? _orderId,

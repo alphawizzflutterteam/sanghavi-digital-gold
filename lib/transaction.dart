@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:atticadesign/new_cart.dart';
 import 'package:atticadesign/screen/cart_product_view.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'Api/api.dart';
 import 'Helper/Color.dart';
 import 'Helper/Session.dart';
+
 // import 'Helper/NewCart.dart';
 import 'Helper/transation_mode.dart';
 import 'Model/order_model.dart';
@@ -20,7 +22,8 @@ import 'notifications.dart';
 import 'screen/order_details.dart';
 
 class Transaction extends StatefulWidget {
-  const Transaction({Key? key}) : super(key: key);
+  const Transaction({Key? key, this.index}) : super(key: key);
+  final int? index;
 
   @override
   State<Transaction> createState() => _TransactionState();
@@ -39,6 +42,7 @@ class _TransactionState extends State<Transaction> {
   double? grams;
   List<OrderModel> orderList = [];
   List<OrderModel> scanPayList = [];
+
   getOrderList() async {
     try {
       setState(() {
@@ -112,6 +116,10 @@ class _TransactionState extends State<Transaction> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    if (widget.index != null) {
+      currentIndex = widget.index!;
+    }
+
     getOrderList();
     getScanPayTransaction();
   }
@@ -136,7 +144,7 @@ class _TransactionState extends State<Transaction> {
           title: Text(
             "Transaction",
             style: TextStyle(
-              color: colors.black54,
+              color: colors.whiteTemp,
               fontSize: 20,
             ),
           ),
@@ -204,7 +212,7 @@ class _TransactionState extends State<Transaction> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Transaction',
+                                'Wallet',
                                 style: TextStyle(
                                   color: currentIndex == 0
                                       ? Colors.white
@@ -242,7 +250,7 @@ class _TransactionState extends State<Transaction> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Order',
+                                'Gold-916',
                                 style: TextStyle(
                                   color: currentIndex == 1
                                       ? Colors.white
@@ -280,7 +288,7 @@ class _TransactionState extends State<Transaction> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Scan & Pay',
+                                'Gold-999',
                                 style: TextStyle(
                                   color: currentIndex == 2
                                       ? Colors.white
@@ -297,7 +305,7 @@ class _TransactionState extends State<Transaction> {
                   ],
                 ),
               ),
-              if (currentIndex == 0)
+              /*if (currentIndex == 0)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -366,341 +374,566 @@ class _TransactionState extends State<Transaction> {
                       ),
                     ),
                   ],
-                ),
+                ),*/
+/*
               if (currentIndex == 0)
-                SizedBox(
-                  height: 20,
-                ),
-              if (currentIndex == 0)
-                typeSelect == "3"
-                    ? FutureBuilder(
-                        future: getTransationCash(
-                          App.localStorage.getString("userId").toString(),
-                        ),
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            TransationModeOnlyAmount? transationModel =
-                                snapshot.data;
-                            double amount = 0.00, tranctionData = 0.00;
+*/
+              SizedBox(
+                height: 20,
+              ),
+              currentIndex == 0
+                  ? FutureBuilder(
+                      future: getTransationCash(
+                        App.localStorage.getString("userId").toString(),
+                      ),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          TransationModeOnlyAmount? transationModel =
+                              snapshot.data;
+                          double amount = 0.00, tranctionData = 0.00;
 
-                            return transationModel!.data!.length > 0
-                                ? Container(
-                                    height: MediaQuery.of(context).size.height,
-                                    child: ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            AlwaysScrollableScrollPhysics(),
-                                        itemCount: transationModel.data!.length,
-                                        itemBuilder: (context, index) {
-                                          if (transationModel
-                                                  .data![index].amount !=
-                                              null) {
-                                            amount = double.parse(
-                                                transationModel
-                                                    .data![index].amount
-                                                    .toString());
-                                          }
-                                          if (transationModel
-                                                  .data![index].credit !=
-                                              null) {
-                                            tranctionData = double.parse(
-                                                transationModel
-                                                    .data![index].credit
-                                                    .toString());
-                                          }
-                                          return Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Card(
-                                              color: colors.secondary2,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
+                          return transationModel!.data!.length > 0
+                              ? Container(
+                                  height: MediaQuery.of(context).size.height,
+                                  child: ListView.builder(
+                                      shrinkWrap: true,
+                                      physics: AlwaysScrollableScrollPhysics(),
+                                      itemCount: transationModel.data!.length,
+                                      itemBuilder: (context, index) {
+                                        if (transationModel
+                                                .data![index].amount !=
+                                            null) {
+                                          amount = double.parse(transationModel
+                                              .data![index].amount
+                                              .toString());
+                                        }
+                                        if (transationModel
+                                                .data![index].credit !=
+                                            null) {
+                                          tranctionData = double.parse(
+                                              transationModel
+                                                  .data![index].credit
+                                                  .toString());
+                                        }
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Card(
+                                            color: colors.secondary2,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: ListTile(
+                                              leading: Image.asset(
+                                                "assets/images/lockercupan.png",
                                               ),
-                                              child: ListTile(
-                                                leading: Image.asset(
-                                                  "assets/images/lockercupan.png",
-                                                ),
-                                                title: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    SizedBox(
-                                                      height: 6,
-                                                    ),
-                                                    Text(
-                                                      "${capitalize(transationModel.data![index].message.toString())}",
-                                                      style: TextStyle(
-                                                          color:
-                                                              colors.blackTemp,
-                                                          fontSize: 18),
-                                                    ),
-                                                    SizedBox(
-                                                      height: 4,
-                                                    ),
-                                                    Text(
-                                                      "Cash",
-                                                      style: TextStyle(
-                                                          color:
-                                                              colors.blackTemp,
-                                                          fontSize: 18),
-                                                    ),
-                                                  ],
-                                                ),
-                                                subtitle: Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(vertical: 12),
-                                                  child: RichText(
-                                                    text: TextSpan(
-                                                      style: TextStyle(
-                                                          color:
-                                                              colors.blackTemp,
-                                                          fontSize: 17),
-                                                      children: <TextSpan>[
-                                                        TextSpan(
-                                                            text:
-                                                                "${transationModel.data![index].dateCreated}",
-                                                            style: TextStyle(
-                                                              color: colors
-                                                                  .blackTemp,
-                                                            )),
-                                                      ],
-                                                    ),
+                                              title: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    height: 6,
+                                                  ),
+                                                  Text(
+                                                    "${transationModel.data![index].message.toString()}",
+                                                    style: TextStyle(
+                                                        color: colors.blackTemp,
+                                                        fontSize: 18),
+                                                  ),
+                                                  /*SizedBox(
+                                                    height: 4,
+                                                  ),
+                                                  Text(
+                                                    "Cash",
+                                                    style: TextStyle(
+                                                        color: colors.blackTemp,
+                                                        fontSize: 18),
+                                                  ),*/
+                                                ],
+                                              ),
+                                              subtitle: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 12),
+                                                child: RichText(
+                                                  text: TextSpan(
+                                                    style: TextStyle(
+                                                        color: colors.blackTemp,
+                                                        fontSize: 17),
+                                                    children: <TextSpan>[
+                                                      TextSpan(
+                                                          text:
+                                                              "${transationModel.data![index].dateCreated}",
+                                                          style: TextStyle(
+                                                            color: colors
+                                                                .blackTemp,
+                                                          )),
+                                                    ],
                                                   ),
                                                 ),
-                                                trailing: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      "₹ ${amount.toStringAsFixed(2).toString()}",
-                                                      style: TextStyle(
-                                                          color:
-                                                              colors.blackTemp,
-                                                          fontSize: 16),
-                                                    ),
-                                                  ],
-                                                ),
+                                              ),
+                                              trailing: Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    "₹ ${amount.toStringAsFixed(2).toString()}",
+                                                    style: TextStyle(
+                                                        color: colors.blackTemp,
+                                                        fontSize: 16),
+                                                  ),
+                                                  Text(
+                                                    "${transationModel.data![index].type}",
+                                                    style: TextStyle(
+                                                        color: transationModel
+                                                                    .data![
+                                                                        index]
+                                                                    .type ==
+                                                                'debit'
+                                                            ? colors.primaryNew
+                                                            : colors.green,
+                                                        fontSize: 16),
+                                                  )
+                                                ],
                                               ),
                                             ),
-                                          );
-                                        }),
-                                  )
-                                : SizedBox(
-                                    height: MediaQuery.of(context).size.height,
-                                    width: double.infinity,
-                                    child: Center(
-                                        child: Text(
-                                      "No History Yet",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 22),
-                                    )));
-                          } else if (snapshot.hasError) {
-                            return Icon(Icons.error_outline);
-                          } else {
-                            return Container(
-                                height: 50,
-                                width: 50,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 1,
-                                ));
-                          }
-                        })
-                    : FutureBuilder(
-                        future: typeSelect == "1"
-                            ? getTransationType(
-                                App.localStorage.getString("userId").toString(),
-                                typeSelect)
-                            : typeSelect == "2"
-                                ? getTransationType(
-                                    App.localStorage
-                                        .getString("userId")
-                                        .toString(),
-                                    typeSelect)
-                                : typeSelect == "3"
-                                    ? getTransationCash(
-                                        App.localStorage
-                                            .getString("userId")
-                                            .toString(),
-                                      )
-                                    : getTransation(
-                                        App.localStorage
-                                            .getString("userId")
-                                            .toString(),
-                                      ),
-                        builder:
-                            (BuildContext context, AsyncSnapshot snapshot) {
-                          if (snapshot.hasData && snapshot.data != null) {
-                            TransactionModel? transationModel = snapshot.data;
-                            double amount = 0.00;
+                                          ),
+                                        );
+                                      }),
+                                )
+                              : SizedBox(
+                                  height: MediaQuery.of(context).size.height,
+                                  width: double.infinity,
+                                  child: Center(
+                                      child: Text(
+                                    "No History Yet",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 22),
+                                  )));
+                        } else if (snapshot.hasError) {
+                          return Icon(Icons.error_outline);
+                        } else {
+                          return Container(
+                              height: 50,
+                              width: 50,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1,
+                              ));
+                        }
+                      })
+                  : currentIndex == 1
+                      ? FutureBuilder(
+                          future: getTransationType(
+                              App.localStorage.getString("userId").toString(),
+                              '1'),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              TransactionModel? transationModel = snapshot.data;
+                              double amount = 0.00;
 
-                            return transationModel!.data!.length > 0
-                                ? Container(
-                                    height: MediaQuery.of(context).size.height,
-                                    child: ListView.builder(
-                                        shrinkWrap: true,
-                                        physics:
-                                            AlwaysScrollableScrollPhysics(),
-                                        itemCount: transationModel.data!.length,
-                                        itemBuilder: (context, index) {
-                                          // if(transationModel.data![index].amount != null){
-                                          //   amount =  double.parse(transationModel.data![index].amount.toString());
-                                          // }
-                                          if (transationModel
-                                                  .data![index].credit !=
-                                              null) {
-                                            transactionData = transationModel
-                                                .data![index].amount
-                                                .toString();
-                                            grams = transationModel.data![index]
-                                                            .credit ==
-                                                        null ||
-                                                    transationModel.data![index]
-                                                            .credit ==
-                                                        ""
-                                                ? 0.0
-                                                : double.parse(transationModel
-                                                    .data![index].credit
-                                                    .toString());
-                                          }
-                                          return Padding(
-                                            padding: const EdgeInsets.all(5.0),
-                                            child: Card(
-                                              color: transationModel
-                                                          .data![index]
-                                                          .purchaseType ==
-                                                      "buy"
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                              ),
-                                              child: Container(
-                                                padding: EdgeInsets.all(15),
-                                                child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Image.asset(
-                                                        "assets/images/lockercupan.png",
-                                                        height: 50,
-                                                        width: 50,
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 5.0,
-                                                                right: 5),
-                                                        child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
+                              return transationModel!.data!.length > 0
+                                  ? Container(
+                                      height:
+                                      MediaQuery.of(context).size.height*0.75,
+                                      child: ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              AlwaysScrollableScrollPhysics(),
+                                          itemCount:
+                                              transationModel.data!.length,
+                                          itemBuilder: (context, index) {
+                                            if (transationModel
+                                                    .data![index].credit !=
+                                                null) {
+                                              transactionData = transationModel
+                                                  .data![index].amount
+                                                  .toString();
+                                              grams = transationModel
+                                                              .data![index]
+                                                              .credit ==
+                                                          null ||
+                                                      transationModel
+                                                              .data![index]
+                                                              .credit ==
+                                                          ""
+                                                  ? transationModel.data![index].debit == null || transationModel.data![index].debit == ""
+                                                      ? 0.0
+                                                      :double.parse(transationModel.data![index].debit.toString())
+                                                  : double.parse(transationModel
+                                                      .data![index].credit
+                                                      .toString());
+                                            }
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Card(
+                                                color: transationModel
+                                                            .data![index]
+                                                            .purchaseType ==
+                                                        "buy"
+                                                    ? Colors.green
+                                                    : transationModel
+                                                    .data![index]
+                                                    .purchaseType ==
+                                                    "redeem"? Colors.blue : Colors.red,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(15),
+                                                  child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/images/lockercupan.png",
+                                                          height: 50,
+                                                          width: 50,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 5.0,
+                                                                  right: 5),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                capitalize(
+                                                                    "${transationModel.data![index].purchaseType}"),
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                              ),
+                                                               Text(
+                                                                 transationModel.data![index].orderId=='0'
+                                                                     ? "Transaction Id\n#${transationModel.data![index].id}"
+                                                                      : "Order Id\n#${transationModel.data![index].orderId}",
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  vertical: 12),
+                                                          child: Container(
+                                                            width: 90,
+                                                            child: RichText(
+                                                              text: TextSpan(
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                                children: <
+                                                                    TextSpan>[
+                                                                  TextSpan(
+                                                                      text:
+                                                                          "${transationModel.data![index].createdAt}",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              colors.whiteTemp)),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Column(
                                                           crossAxisAlignment:
                                                               CrossAxisAlignment
                                                                   .start,
                                                           children: [
                                                             Text(
-                                                              capitalize(
-                                                                  "${transationModel.data![index].purchaseType}"),
+                                                              "₹ ${transactionData}",
+                                                              maxLines: 1,
+                                                              //textScaleFactor: 6,
                                                               style: TextStyle(
                                                                   color: colors
-                                                                      .blackTemp,
-                                                                  fontSize: 18),
+                                                                      .whiteTemp,
+                                                                  fontSize: 14),
+                                                            ),
+
+                                                            Text(
+                                                              "${grams!.toStringAsFixed(2)} gms",
+                                                              // "${transationModel.data![index].credit.toString()} gms",
+                                                              maxLines: 2,
+                                                              //textScaleFactor: 6,
+                                                              style: TextStyle(
+                                                                  color: colors
+                                                                      .whiteTemp,
+                                                                  fontSize: 14),
+                                                            ),
+                                                            SizedBox(height: 5,),
+                                                            transationModel
+                                                                .data![index]
+                                                                .purchaseType ==
+                                                                "buy" ? InkWell(
+                                                              onTap: () async{
+
+                                                                if (!await launchUrl(Uri.parse(transationModel
+                                                                    .data![index]
+                                                                    .invoice ?? ''), mode:
+                                                                LaunchMode.externalApplication)) {
+                                                                throw Exception('Could not launch');
+                                                                }
+
+                                                              },
+                                                                  child: Text(
+                                                              "Download\nInvoice",
+                                                              // "${transationModel.data![index].credit.toString()} gms",
+                                                              maxLines: 2,
+                                                              //textScaleFactor: 6,
+                                                              style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize: 12,decoration: TextDecoration.underline,fontWeight: FontWeight.bold),
+                                                            ),
+                                                                ) : SizedBox(),
+                                                          ],
+                                                        ),
+                                                      ]),
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                    )
+                                  : SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      width: double.infinity,
+                                      child: Center(
+                                          child: Text(
+                                        "No History Yet",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 22),
+                                      )));
+                            } else if (snapshot.hasError) {
+                              return Icon(Icons.error_outline);
+                            } else {
+                              return Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1,
+                                  ));
+                            }
+                          })
+                      : FutureBuilder(
+                          future: getTransationType(
+                              App.localStorage.getString("userId").toString(),
+                              '2'),
+                          builder:
+                              (BuildContext context, AsyncSnapshot snapshot) {
+                            if (snapshot.hasData) {
+                              TransactionModel? transationModel = snapshot.data;
+                              double amount = 0.00;
+
+                              return (transationModel?.data?.isNotEmpty ?? false) &&transationModel?.data !=null
+                                  ? Container(
+                                      height:
+                                          MediaQuery.of(context).size.height*0.75,
+                                      child: ListView.builder(
+                                          shrinkWrap: true,
+                                          physics:
+                                              AlwaysScrollableScrollPhysics(),
+                                          itemCount:
+                                              transationModel?.data?.length ?? 0,
+                                          itemBuilder: (context, index) {
+                                            // if(transationModel.data![index].amount != null){
+                                            //   amount =  double.parse(transationModel.data![index].amount.toString());
+                                            // }
+                                            if (transationModel
+                                                    !.data![index].credit !=
+                                                null) {
+                                              transactionData = double.parse(
+                                                      transationModel
+                                                              .data![index]
+                                                              .amount ??
+                                                          '0.0')
+                                                  .toStringAsFixed(2);
+                                              grams = transationModel
+                                                              .data![index]
+                                                              .credit ==
+                                                          null ||
+                                                      transationModel
+                                                              .data![index]
+                                                              .credit ==
+                                                          ""
+                                                  ?  transationModel.data![index].debit == null || transationModel.data![index].debit == ""
+                                            ? 0.0
+                                                :double.parse(transationModel.data![index].debit.toString())
+                                                  : double.parse(transationModel
+                                                      .data![index].credit
+                                                      .toString());
+                                            }
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(5.0),
+                                              child: Card(
+                                                color: transationModel
+                                                            .data![index]
+                                                            .purchaseType ==
+                                                        "buy"
+                                                    ?  Colors.green
+                                                    : transationModel
+                                                    .data![index]
+                                                    .purchaseType ==
+                                                    "redeem"? Colors.blue : Colors.red,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10.0),
+                                                ),
+                                                child: Container(
+                                                  padding: EdgeInsets.all(15),
+                                                  child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/images/lockercupan.png",
+                                                          height: 50,
+                                                          width: 50,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  left: 5.0,
+                                                                  right: 5),
+                                                          child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                capitalize(
+                                                                    "${transationModel.data![index].purchaseType}"),
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                              ),
+                                                              Text(
+                                                                  transationModel.data![index].orderId=='0'
+                                                                      ? "Transaction Id\n#${transationModel.data![index].id}"
+                                                                      : "Order Id\n#${transationModel.data![index].orderId}",
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  vertical: 12),
+                                                          child: Container(
+                                                            width: 90,
+                                                            child: RichText(
+                                                              text: TextSpan(
+                                                                style: TextStyle(
+                                                                    color: colors
+                                                                        .whiteTemp,
+                                                                    fontSize:
+                                                                        14),
+                                                                children: <
+                                                                    TextSpan>[
+                                                                  TextSpan(
+                                                                      text:
+                                                                          "${transationModel.data![index].createdAt}",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              colors.whiteTemp)),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Text(
+                                                              "₹ ${transactionData.toString()}",
+                                                              maxLines: 1,
+                                                              //textScaleFactor: 6,
+                                                              style: TextStyle(
+                                                                  color: colors
+                                                                      .whiteTemp,
+                                                                  fontSize: 14),
                                                             ),
                                                             Text(
-                                                              "${transationModel.data![index].ptype}",
+                                                              "${grams!.toStringAsFixed(2)}gms",
+                                                              // "${transationModel.data![index].credit.toString()} gms",
+                                                              maxLines: 2,
+                                                              //textScaleFactor: 6,
                                                               style: TextStyle(
                                                                   color: colors
-                                                                      .blackTemp,
-                                                                  fontSize: 18),
+                                                                      .whiteTemp,
+                                                                  fontSize: 14),
                                                             ),
                                                           ],
                                                         ),
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                vertical: 12),
-                                                        child: Container(
-                                                          width: 90,
-                                                          child: RichText(
-                                                            text: TextSpan(
-                                                              style: TextStyle(
-                                                                  color: colors
-                                                                      .blackTemp,
-                                                                  fontSize: 17),
-                                                              children: <
-                                                                  TextSpan>[
-                                                                TextSpan(
-                                                                    text:
-                                                                        "${transationModel.data![index].createdAt}",
-                                                                    style: TextStyle(
-                                                                        color: colors
-                                                                            .blackTemp)),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "₹ ${transactionData.toString()}",
-                                                            maxLines: 1,
-                                                            //textScaleFactor: 6,
-                                                            style: TextStyle(
-                                                                color: colors
-                                                                    .blackTemp,
-                                                                fontSize: 18),
-                                                          ),
-                                                          Text(
-                                                            "${grams!.toStringAsFixed(6)}\ngms",
-                                                            // "${transationModel.data![index].credit.toString()} gms",
-                                                            maxLines: 2,
-                                                            //textScaleFactor: 6,
-                                                            style: TextStyle(
-                                                                color: colors
-                                                                    .blackTemp,
-                                                                fontSize: 18),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ]),
+                                                      ]),
+                                                ),
                                               ),
-                                            ),
-                                          );
-                                        }),
-                                  )
-                                : SizedBox(
-                                    height: MediaQuery.of(context).size.height,
-                                    width: double.infinity,
-                                    child: Center(
-                                        child: Text(
-                                      "No History Yet",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 22),
-                                    )));
-                          } else if (snapshot.hasError) {
-                            return Icon(Icons.error_outline);
-                          } else {
-                            return Container(
-                                height: 50,
-                                width: 50,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 1,
-                                ));
-                          }
-                        }),
-              if (currentIndex == 1)
+                                            );
+                                          }),
+                                    )
+                                  : SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      width: double.infinity,
+                                      child: Center(
+                                          child: Text(
+                                        "No History Yet",
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 22),
+                                      )));
+                            } else if (snapshot.hasError) {
+                              return Icon(Icons.error_outline);
+                            } else {
+                              return Container(
+                                  height: 50,
+                                  width: 50,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1,
+                                  ));
+                            }
+                          }),
+              /*if (currentIndex == 1)
                 loadingWish
                     ? orderList.length > 0
                         ? ListView.builder(
@@ -730,8 +963,9 @@ class _TransactionState extends State<Transaction> {
                         child: CircularProgressIndicator(
                           color: MyColorName.primaryDark,
                         ),
-                      ),
-              if (currentIndex == 2)
+                      ),*/
+
+              /*if (currentIndex == 2)
                 loadingWish
                     ? scanPayList.length > 0
                         ? ListView.builder(
@@ -761,7 +995,7 @@ class _TransactionState extends State<Transaction> {
                         child: CircularProgressIndicator(
                           color: MyColorName.primaryDark,
                         ),
-                      ),
+                      ),*/
             ],
           ),
         ));

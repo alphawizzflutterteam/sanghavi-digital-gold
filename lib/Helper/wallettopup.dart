@@ -40,7 +40,7 @@ class _WalletTopupsState extends State<WalletTopups> {
 
   doPayment(){
     var a = double.parse(choiceAmountController.text.toString()) * 100;
-    RazorPayHelper razorHelper=new RazorPayHelper(
+    RazorPayHelper razorHelper= new RazorPayHelper(
         choiceAmountController.text.toString() ,
         context, (result){}, "curUserId", "", false, false);
     razorHelper.init(true, amount: a.toString(), addAmointTr: true);

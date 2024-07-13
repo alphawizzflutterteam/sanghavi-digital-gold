@@ -281,9 +281,9 @@ class _GoldCoinBarState extends State<GoldCoinBar> {
                                   child: FutureBuilder(
                                       future: productSubCategoriesCategoriesWiseList(
                                               isGold ? catGold : catSilver),
-                                      builder: (BuildContext context,
+                                      builder: (BuildContext context, 
                                           AsyncSnapshot snapshot) {
-                                        SubCategoriGoldorsilver model =
+                                        SubCategoriGoldorsilver? model =
                                             snapshot.data;
                                         List<String> listCat = [];
                                         isDone = true;
@@ -298,7 +298,7 @@ class _GoldCoinBarState extends State<GoldCoinBar> {
                                         if (snapshot.connectionState ==
                                             ConnectionState.done) {
                                           if (snapshot.hasData) {
-                                            return model.error == false
+                                            return model?.error == false
                                                 ? listCat.length > 0
                                                     ? Padding(
                                                       padding: const EdgeInsets.only(left: 40.0),
@@ -362,14 +362,14 @@ class _GoldCoinBarState extends State<GoldCoinBar> {
                                                               if (index != 0) {
                                                                 _getData(
                                                                     model
-                                                                        .data![
+                                                                        ?.data![
                                                                             index]
                                                                         .products![
                                                                             index]
                                                                         .categoryId
                                                                         .toString(),
                                                                     model
-                                                                        .data![
+                                                                        ?.data![
                                                                             index]
                                                                         .products![
                                                                             index]
@@ -389,12 +389,12 @@ class _GoldCoinBarState extends State<GoldCoinBar> {
                                                                         catGold);
                                                                   } else {
                                                                     catGold = model
-                                                                        .data![
+                                                                        ?.data![
                                                                             index]
                                                                         .products![
                                                                             index]
                                                                         .categoryId
-                                                                        .toString();
+                                                                        .toString() ?? '';
                                                                   }
                                                                 } else {
                                                                   if (index ==
@@ -403,22 +403,22 @@ class _GoldCoinBarState extends State<GoldCoinBar> {
                                                                         catSilver);
                                                                   } else {
                                                                     catSilver = model
-                                                                        .data![
+                                                                        ?.data![
                                                                             index]
                                                                         .products![
                                                                             index]
                                                                         .categoryId
-                                                                        .toString();
+                                                                        .toString() ?? '';
                                                                   }
                                                                 }
                                                                 sub = index != 0
                                                                     ? model
-                                                                        .data![
+                                                                        ?.data![
                                                                             index]
                                                                         .products![
                                                                             index]
                                                                         .subCategoryId
-                                                                        .toString()
+                                                                        .toString() ?? ''
                                                                     : "";
                                                                 setState(() {});
                                                               });

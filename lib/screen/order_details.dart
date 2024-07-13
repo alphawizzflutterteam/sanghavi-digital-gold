@@ -17,6 +17,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
@@ -112,7 +113,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
             child: Column(
               children: [
                 SizedBox(height: 2.h,),
-                Container(
+                /*Container(
                   width: 83.33.w,
                   decoration:
                   boxDecoration(radius: 10.0, bgColor: colors.secondary2),
@@ -131,7 +132,89 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       ),
                     ),
                   ),
-                ),
+                ),*/
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: model?.orderItems?.length ?? 0,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: getWidth(330),
+                      height: getHeight(130),
+                      margin: EdgeInsets.only(bottom: getHeight(10)),
+                      decoration: boxDecoration(
+                        radius: 15,
+                        bgColor: colors.secondary2,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: getWidth(10), vertical: getHeight(10)),
+                      child:   Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: commonHWImage(
+                                model?.orderItems![index].image,
+                                100.0,
+                                100.0,
+                                "images/product/product0.png",
+                                context,
+                                "images/product/product0.png"),
+                          ),
+                          Container(
+                            width: getWidth(210),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: text(getString1(model?.orderItems?[index].name ?? ''),
+                                          fontSize: 14.sp, fontFamily: fontRegular,textColor: colors.blackTemp),
+                                    ),
+                                    /*Column(
+                                      children: [
+                                        Icon(Icons.check_circle,color: back,),
+                                        text(model.orderItems![0].activeStatus.toString(), fontSize: 8.sp, fontFamily: fontRegular,textColor: back),
+                                      ],
+                                    )*/
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    text("₹"+(model?.orderItems?[index].price ?? ''),
+                                        // orderItems![0].price.toString(),
+                                        fontSize: 14.sp, fontFamily: fontMedium),
+                                  ],
+                                ),
+                                boxHeight(20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        text("Qty. : ", fontSize: 10.sp, fontFamily: fontRegular),
+                                        text(model?.orderItems?[index].quantity.toString() ?? '', fontSize: 10.sp, fontFamily: fontRegular),
+                                      ],
+                                    ),
+                                    text(DateFormat("dd-MM-yyyy").format(DateTime.parse(model!.dateAdded!)),
+                                      fontSize: 10.sp,
+                                      fontFamily:
+                                      fontMedium,
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },),
                 SizedBox(height: 2.h,),
                 Container(
                   width: 83.33.w,
@@ -217,7 +300,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                               ),
                               SizedBox(width: 3.w,),
                               text(
-                                "₹${getString1(model!.finalTotal.toString())}",
+                                "₹${getString1((double.parse(model!.finalTotal!.toString()) - double.parse(model!.deliveryCharge.toString())).toString())}",
                                 textColor: colors.blackTemp,
                                 fontSize: 10.sp,
                                 fontFamily: fontRegular,
@@ -444,24 +527,24 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4.2.h,),
+                      /*SizedBox(height: 4.2.h,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           text(
-                            "Delivery Charges" ,
+                            "Wallet Amount Used" ,
                             fontSize: 10.sp,
                             fontFamily: fontRegular,
                             textColor: colors.blackTemp,
                           ),
                           text(
-                            "₹${getString1(model!.deliveryCharge.toString())}",
+                            "-₹${getString1(model!.walletBalance.toString())}",
                             fontSize: 10.sp,
                             fontFamily: fontRegular,
                             textColor: colors.blackTemp,
                           ),
                         ],
-                      ),
+                      ),*/
                       proDiscount>0?SizedBox(height: 4.2.h,):boxHeight(0),
                       proDiscount>0?Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -491,7 +574,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             textColor: colors.blackTemp,
                           ),
                           text(
-                            "${getString1(model!.totalTaxPercent.toString())}%",
+                            "${getString1(model!.orderItems![0].taxPercent.toString())}%",
                             fontSize: 10.sp,
                             fontFamily: fontRegular,
                             textColor: colors.blackTemp,
@@ -529,7 +612,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             textColor: colors.blackTemp,
                           ),
                           text(
-                            "₹${getString1(model!.finalTotal.toString())}",
+                            "₹${getString1((double.parse(model!.finalTotal!.toString()) - double.parse(model!.deliveryCharge.toString())).toString())}",
                             fontSize: 14.sp,
                             fontFamily: fontBold,
                             textColor: colors.blackTemp,
@@ -542,8 +625,8 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                 boxHeight(29),
                 model!.orderItems![0].activeStatus!.toLowerCase()!="delivered"?InkWell(
                   onTap: (){
-                    showDialog(context: context, builder: (BuildContext context){
-                      return AddOrderReview(model!);
+                    showDialog(context: context, builder: (BuildContext ctx){
+                      return AddOrderReview(model!,ctx);
                     });
                   },
                   child: DottedBorder(

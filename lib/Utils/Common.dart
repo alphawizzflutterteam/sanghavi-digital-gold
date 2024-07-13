@@ -112,3 +112,5 @@ class DateFormatter extends TextInputFormatter {
     );
   }
 }
+
+int? curIndex;

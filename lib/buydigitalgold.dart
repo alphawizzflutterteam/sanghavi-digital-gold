@@ -28,7 +28,9 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'Api/api.dart';
 import 'Helper/Session.dart';
 // import 'Helper/NewCart.dart';
+import 'Helper/order _Confirmed.dart';
 import 'Model/UserDetailsModel.dart';
+import 'Model/pruchaseModel.dart';
 import 'Model/voucher_model.dart';
 import 'Provider/live_price_provider.dart';
 import 'Utils/ApiBaseHelper.dart';
@@ -69,6 +71,7 @@ class _BuyDigitalGoldState extends State<BuyDigitalGold> {
   double taxPer = 3;
   double taxAmount = 0;
   double totalAmount = 0 ;
+  double totalWithoutWallet = 0 ;
   // String razorPayKey = "rzp_test_CpvP0qcfS4CSJD";
   // String razorPaySecret = "rzp_test_CzVEZjetT2HvfwMDkMfaO6Oq1JD1BpiWuQseSX";
   static const _chars =
@@ -97,7 +100,7 @@ class _BuyDigitalGoldState extends State<BuyDigitalGold> {
     fontSize: 14,
   );
 
-
+Timer? timer ;
 
   @override
   void initState() {
@@ -113,6 +116,26 @@ class _BuyDigitalGoldState extends State<BuyDigitalGold> {
     getWallet();
     goldRate = double.parse(widget.goldRate.toString());
     silverRate = double.parse(widget.gold1Rate.toString());
+    getLiveRates();
+  }
+
+  getLiveRates(){
+    goldRate = double.parse(Provider.of<LivePriceProvider>(context, listen: false).gold1);
+    silverRate = double.parse(Provider.of<LivePriceProvider>(context, listen: false).gold2);
+    setState(() {});
+    timer = Timer.periodic(Duration(minutes: 2), (timer) {
+      goldRate = double.parse(Provider.of<LivePriceProvider>(context, listen: false).gold1);
+      silverRate = double.parse(Provider.of<LivePriceProvider>(context, listen: false).gold2);
+      setState(() {});
+    });
+
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    timer?.cancel() ;
   }
 
 
@@ -283,6 +306,11 @@ var balance = 0.0;
   bool isGoldWallet = false;
   bool isSilverWallet = false;
   double  restAmount= 0;
+
+  ///for timer
+  Function? bottomSheetState ;
+  int timerValue =  59;
+
 
   // priceView() {
   //   return Container(
@@ -557,7 +585,7 @@ var balance = 0.0;
 
   @override
   Widget build(BuildContext context) {
-    getWallet();
+   // getWallet();
     return Scaffold(
       // backgroundColor: colors.bgColor,
       appBar: AppBar(
@@ -573,9 +601,9 @@ var balance = 0.0;
           ),
         ),
         title: Text(
-     "Buy Digital Gold" ,
+           "Buy Digital Gold" ,
           style: TextStyle(
-            color: colors.blackTemp,
+            color: colors.whiteTemp,
             fontSize: 18,
           ),
         ),
@@ -614,166 +642,8 @@ var balance = 0.0;
         // scrollDirection: Axis.vertical,
         child: Column(
           children: [
-
-
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              height: 270,
-              width: double.infinity,
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              padding: EdgeInsets.only(top: 12, left: 8, right: 8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                  color: colors.primaryNew,
-                  image: DecorationImage(
-                    image:   AssetImage(
-                      //isGold ?
-                        "assets/homepage/coinback.png"
-                    ),
-                    //: "assets/homepage/silver.png") ,
-                  )),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            bottom: 10.0, left: 20, top: 20),
-                        child: Text(
-                          'Current digital gold Rates',
-                           //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20.0, right: 20, bottom: 100),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Gold-916 Rate\n₹ ${goldRate.toStringAsFixed(2)}/gram',
-                          //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          'Gold-999 Rate\n₹ ${silverRate.toStringAsFixed(2)}/gram',
-                          //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(left: 15.0, right: 15,),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        Text(
-
-                              // isGold ?
-                          "Gold-916 Grams \n${availeGoldgram.toStringAsFixed(4)} gms"
-                           ,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color:colors.white1,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Container(
-                          height: 60,
-                          child: VerticalDivider(
-                            thickness: 1,
-                            color: colors.white1,
-                          ),
-                        ),
-                        Text(
-        "Gold-999 Grams \n${availebaleSilveGram.toStringAsFixed(4)} gms",
-        // 'Total ${isGold ? "Gold-916" : "Gold-999"} Wallet : '
-                          //     '${isGold && goldenWallet > 1 ?
-                          // "${availeGoldgram.toStringAsFixed(2)} gms \n(₹ ${goldenWallet.toStringAsFixed(2).toString()})"
-                          //     :
-                          // silverWallet > 1 ? "${availebaleSilveGram.toStringAsFixed(2)} gms \n(₹ ${silverWallet.toStringAsFixed(2).toString()})"
-                          //     : "0.00 gms \n(₹ 0.00)"}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color:colors.white1,
-                            fontWeight: FontWeight.normal,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> Transaction()));
-                },
-                child: Container(
-                  height: 40,
-                  width: MediaQuery.of(context).size.width/2,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xffF1D459).withOpacity(0.8), Color(0xffB27E29).withOpacity(0.8)],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                      borderRadius: BorderRadius.circular(15.0)
-                  ),
-                  child: Center(child: Text("View Transactions",
-                    style: TextStyle(fontWeight: FontWeight.w500),)),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'How much you want to buy?',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.black,
-                      // colors.black54.withOpacity(1),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 20),
+           /* Padding(
+              padding: EdgeInsets.only(top: 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -781,7 +651,7 @@ var balance = 0.0;
                     child: Padding(
                       padding: EdgeInsets.only(top: 10.0, left: 15.0),
                       child: Container(
-                        height: 40,
+                        height: 50,
                         //  width: 150,
                         decoration: BoxDecoration(
                           color: isGold
@@ -839,7 +709,7 @@ var balance = 0.0;
                     child: Padding(
                       padding: const EdgeInsets.only(top: 10.0, right: 15),
                       child: Container(
-                        height: 40,
+                        height: 50,
                         // width: 150,
                         decoration: BoxDecoration(
                           color: !isGold
@@ -892,7 +762,317 @@ var balance = 0.0;
                   ),
                 ],
               ),
+            ),*/
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 10.0, left: 15.0),
+                        child: Container(
+                          height: 50,
+                          width: 150,
+                          decoration: BoxDecoration(
+                            color: isGold
+                                ? Colors.green
+                                : Colors.grey,
+                            border: Border.all(
+                                color: isGold
+                                    ? Colors.green
+                                    : Colors.black12),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(7.0) //
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                isBuyNow = true;
+                                isGold = !isGold;
+                                choiceAmountControllerGram.clear();
+                                choiceAmountController.clear();
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Image.asset(
+                                    'assets/homepage/gold.png',
+                                    height: 30,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    'Gold-916',
+                                    style: TextStyle(
+                                      color: isGold ? Colors.white :Color(0xff0C1723),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 10.0, right: 15),
+                        child: Container(
+                          height: 50,
+                          width: 150,
+                          decoration: BoxDecoration(
+                            color: !isGold
+                                ? Colors.green
+                                : Colors.grey,
+                            border: Border.all(
+                                color: !isGold
+                                    ? Colors.green
+                                    : Colors.black12),
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(7.0) //
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                isBuyNow = true;
+                                isGold = !isGold;
+                                choiceAmountControllerGram.clear();
+                                choiceAmountController.clear();
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Image.asset(
+                                    'assets/homepage/gold.png',
+                                    height: 30,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    'Gold-999',
+                                    style: TextStyle(
+                                      color: !isGold ? Colors.white : Color(0xff0C1723),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            SizedBox(
+              height: 15,
             ),
+            Container(
+              //height: 270,
+              width: double.infinity,
+              clipBehavior: Clip.antiAlias,
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.only(left: 8, right: 8),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  color: colors.whiteTemp,
+                  image: DecorationImage(
+                    image: AssetImage(
+                      //isGold ?
+                        "assets/homepage/coinback1.png"
+                    ),fit: BoxFit.cover
+                    //: "assets/homepage/silver.png") ,
+                  )),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            /*bottom: 10.0,*/ left: 20, top: 15),
+                        child: Text(
+                          'Current digital gold Rates',
+                           //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 20.0, right: 0, bottom: 60,top: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        isGold ? Text(
+                          'Gold-916 Rate\n₹ ${goldRate.toStringAsFixed(2)}/gram',
+                          //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ) : Text(
+                          'Gold-999 Rate\n₹ ${silverRate.toStringAsFixed(2)}/gram',
+                          //   '${isGold ? "Gold-916" : "Gold-999"} \nnow',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+
+                      ],
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15.0, right: 15,bottom: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                       isGold ? Expanded(
+                         flex: 1,
+                         child: Text(
+
+                                // isGold ?
+                            "Total Gold-916 \n${availeGoldgram.toStringAsFixed(2)} gms "//(₹ ${goldenWallet.toStringAsFixed(2).toString()})
+                             ,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color:colors.white1,
+                              fontWeight: FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
+                       ) : Expanded(
+                         flex: 1,
+                         child: Text(
+                           "Total Gold-999 \n${availebaleSilveGram.toStringAsFixed(2)} gms ",//(₹ ${silverWallet.toStringAsFixed(2).toString()})
+                           // 'Total ${isGold ? "Gold-916" : "Gold-999"} Wallet : '
+                           //     '${isGold && goldenWallet > 1 ?
+                           // "${availeGoldgram.toStringAsFixed(2)} gms \n(₹ ${goldenWallet.toStringAsFixed(2).toString()})"
+                           //     :
+                           // silverWallet > 1 ? "${availebaleSilveGram.toStringAsFixed(2)} gms \n(₹ ${silverWallet.toStringAsFixed(2).toString()})"
+                           //     : "0.00 gms \n(₹ 0.00)"}',
+                           textAlign: TextAlign.center,
+                           style: TextStyle(
+                             color:colors.white1,
+                             fontWeight: FontWeight.normal,
+                             fontSize: 14,
+                           ),
+                         ),
+                       ),
+                        Expanded(
+                          flex: 1,
+                          child: InkWell(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=> Transaction(index: isGold ? 1 :2 ,))).then((value) {
+                                getLiveRates();
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              //height: 30,
+                             // width: MediaQuery.of(context).size.width/2,
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xffF1D459).withOpacity(0.8), Color(0xffB27E29).withOpacity(0.8)],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15.0)
+                              ),
+                              child: Center(child: Text("View Transactions",textAlign: TextAlign.center,
+                                style: TextStyle(fontWeight: FontWeight.w500),)),
+                            ),
+                          ),
+                        ),
+                        /*Container(
+                          height: 60,
+                          child: VerticalDivider(
+                            thickness: 1,
+                            color: colors.white1,
+                          ),
+                        ),*/
+
+                      ],
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+
+            /*Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> Transaction()));
+                },
+                child: Container(
+                  height: 40,
+                  width: MediaQuery.of(context).size.width/2,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xffF1D459).withOpacity(0.8), Color(0xffB27E29).withOpacity(0.8)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(15.0)
+                  ),
+                  child: Center(child: Text("View Transactions",
+                    style: TextStyle(fontWeight: FontWeight.w500),)),
+                ),
+              ),
+            ),*/
+            SizedBox(height: 25,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'How much you want to buy?',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.black,
+                      // colors.black54.withOpacity(1),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+
+                ],
+              ),
+            ),
+
 
             Row(
               children: [
@@ -975,7 +1155,7 @@ var balance = 0.0;
 
                       onChanged: (value) {
                         double a = isGold ? goldRate : silverRate;
-                        taotalPrice = double.parse(value) * a;
+                        taotalPrice = double.parse(value.isEmpty ? '0.0' :value) * a;
 
                         if (value.isNotEmpty) {
 
@@ -990,6 +1170,7 @@ var balance = 0.0;
                         } else {
                           taotalPrice = 0.00;
                           choiceAmountController.clear() ;
+                          print(choiceAmountController.text);
                         }
                       },
                       keyboardType: TextInputType.number,
@@ -1176,6 +1357,7 @@ var balance = 0.0;
             // ),
             const SizedBox(height: 20,),
             voucherView(),
+            voucher !=null && voucher !=0.0 ? Text('*Congratulations! you saved ₹ ${voucher} on final amount') : SizedBox(),
 
             Padding(
               padding: const EdgeInsets.only(top: 20.0, bottom: 20),
@@ -1183,12 +1365,18 @@ var balance = 0.0;
                 onTap: (){
                   walletAmountController.clear();
                   if(choiceAmountControllerGram.text.isNotEmpty) {
+                    totalWithoutWallet = double.parse(choiceAmountController.text)+ taxAmount;
+                    if(proDiscount > 0 && voucher != null){
+                      totalWithoutWallet-= voucher! ;
+                    }
+                    timerValue = 59 ;
                     showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,
                         builder: (context) {
                           return StatefulBuilder(
                               builder: (context, setState) {
+                                bottomSheetState = setState ;
                                 return Container(
                                   decoration: BoxDecoration(
                                       borderRadius: BorderRadius.only(
@@ -1199,554 +1387,588 @@ var balance = 0.0;
                                       .of(context)
                                       .size
                                       .height * 0.90,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Select Wallet',
-                                              style: TextStyle(
-                                                color: Theme.of(context).colorScheme.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                'Select Wallet',
+                                                style: TextStyle(
+                                                  color: Theme.of(context).colorScheme.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15,
+                                                ),
                                               ),
-                                            ),
+                                              Text(
+                                                '00:${timerValue}',
+                                                style: TextStyle(
+                                                  color: Theme.of(context).colorScheme.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
 
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      Container(
-                                        width: getWidth1(640),
-                                        decoration: boxDecoration(
-                                          radius: 15,
-                                          bgColor: colors.secondary2.withOpacity(0.3),
+                                        Container(
+                                          width: getWidth1(640),
+                                          decoration: boxDecoration(
+                                            radius: 15,
+                                            bgColor: colors.secondary2.withOpacity(0.3),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: getWidth1(29), vertical: getHeight1(20)),
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                height: 50,
+                                                child: CheckboxListTile(
+                                                  title: Text("Wallet : ₹ ${totalBalance.toStringAsFixed(2)}"),
+                                                  value: isWallet,
+                                                  activeColor: colors.secondary2,
+                                                  checkColor: colors.blackTemp,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      isWallet = value!;
+                                                      isGoldWallet = false;
+                                                      isSilverWallet = false;
+                                                      if(isWallet && totalBalance >=  totalAmount){
+                                                        walletAmountController.text = totalAmount.toString() ;
+                                                        restAmount = totalAmount - double.parse(walletAmountController.text);
+                                                      }else {
+                                                        walletAmountController.text = '';
+                                                        restAmount = 0 ;
+                                                      }
+                                                      // _roomController.text = '${item.id}';
+                                                      // print('${_roomController.text}');
+                                                    });
+                                                  },
+                                                  controlAffinity: ListTileControlAffinity.leading,
+                                                ),
+                                              ),
+                                              // isGold == true?
+                                              // Container(
+                                              //   height: 50,
+                                              //   child: CheckboxListTile(
+                                              //     title: Text("Gold-916 Wallet : ₹ ${goldenWallet.toStringAsFixed(2)}"),
+                                              //     value: isGoldWallet,
+                                              //     activeColor: colors.secondary2,
+                                              //     checkColor: colors.blackTemp,
+                                              //     onChanged: (value) {
+                                              //       setState(() {
+                                              //         isGoldWallet = value!;
+                                              //         isWallet = false;
+                                              //         isSilverWallet = false;
+                                              //         // _roomController.text = '${item.id}';
+                                              //         // print('${_roomController.text}');
+                                              //       });
+                                              //     },
+                                              //     controlAffinity: ListTileControlAffinity.leading,
+                                              //   ),
+                                              // )
+                                              //     : SizedBox(),
+                                              // isGold == false ?
+                                              // Container(
+                                              //   height: 50,
+                                              //   child: CheckboxListTile(
+                                              //     title: Text("Gold-999 Wallet : ₹ ${silverWallet.toStringAsFixed(2)}"),
+                                              //     value: isSilverWallet,
+                                              //     activeColor: colors.secondary2,
+                                              //     checkColor: colors.blackTemp,
+                                              //     onChanged: (value) {
+                                              //       setState(() {
+                                              //         isSilverWallet = value!;
+                                              //         isWallet = false;
+                                              //         isGoldWallet = false;
+                                              //         // _roomController.text = '${item.id}';
+                                              //         // print('${_roomController.text}');
+                                              //       });
+                                              //     },
+                                              //     controlAffinity: ListTileControlAffinity.leading,
+                                              //   ),
+                                              // )
+                                              //     : SizedBox(),
+                                              isWallet ?
+                                              Container(
+                                                margin: EdgeInsets.all(15),
+                                                child: TextFormField(
+                                                  controller: walletAmountController,
+
+                                                  onChanged: (value){
+                                                    restAmount = totalAmount - double.parse(walletAmountController.text.isEmpty ? '0.0' :walletAmountController.text);
+                                                    if(restAmount < 0){
+                                                      restAmount = 0 ;
+                                                    }
+                                                    setState((){
+
+                                                    });
+                                                  },
+                                                  onFieldSubmitted: (value){
+                                                    // if (curIndex == null) {
+                                                    //   setSnackbar("Please Select or Add Address", context);
+                                                    //   return;
+                                                    // }
+                                                    restAmount = totalAmount - double.parse(walletAmountController.text.isEmpty ? '0.0' :walletAmountController.text );
+                                                    // addOrderGold(amountPasValue);
+                                                    print("rest amount here and total amount here as well ${restAmount} and ${totalAmount}");
+                                                  },
+                                                  autofocus: true,
+                                                  style: TextStyle(
+                                                    fontSize: 24,
+                                                    color: Colors.blue,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                  keyboardType: TextInputType.number,
+                                                  decoration: InputDecoration(
+                                                    focusColor: Colors.white,
+                                                    // prefixIcon: Icon(
+                                                    //   Icons.person_outline_rounded,
+                                                    //   color: Colors.grey,
+                                                    // ),
+
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(10.0),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderSide: const BorderSide(
+                                                          color: Colors.blue, width: 1.0),
+                                                      borderRadius: BorderRadius.circular(10.0),
+                                                    ),
+                                                    fillColor: Colors.grey,
+                                                    hintText: "₹ Enter amount used from Wallet",
+                                                    hintStyle: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                    labelText: '₹ Enter amount used from Wallet',
+                                                    labelStyle: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w400,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                                  : SizedBox.shrink(),
+                                              // Container(
+                                              //   height: 50,
+                                              //   child: CheckboxListTile(
+                                              //     title: Text("RazorPay"),
+                                              //     value: isRazor,
+                                              //     activeColor: MyColorName.primaryDark,
+                                              //     checkColor: MyColorName.colorTextPrimary,
+                                              //     onChanged: (value) {
+                                              //       setState(() {
+                                              //         isRazor = value!;
+                                              //         // _roomController.text = '${item.id}';
+                                              //         // print('${_roomController.text}');
+                                              //       });
+                                              //     },
+                                              //     controlAffinity: ListTileControlAffinity.leading,
+                                              //   ),
+                                              // )
+                                            ],
+                                          ),
                                         ),
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: getWidth1(29), vertical: getHeight1(20)),
-                                        child: Column(
-                                          children: [
-                                            Container(
-                                              height: 50,
-                                              child: CheckboxListTile(
-                                                title: Text("Wallet : ₹ ${totalBalance.toStringAsFixed(2)}"),
-                                                value: isWallet,
-                                                activeColor: colors.secondary2,
-                                                checkColor: colors.blackTemp,
+                                        // paymentMode(),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 20, vertical: 10),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment
+                                                .center,
+                                            children: [
+                                              Text(
+                                                'Order Summary',
+                                                style: TextStyle(
+                                                 color: Theme.of(context).colorScheme.black,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 15,
+                                                ),
+                                              ),
+
+                                            ],
+                                          ),
+                                        ),
+                                        choiceAmountController.text.isNotEmpty ?
+                                        buySummary()
+                                            : SizedBox(),
+                                        choiceAmountController.text.isEmpty
+                                            ? SizedBox
+                                            .shrink()
+                                            : isWallet && restAmount <= 0 ? SizedBox() : Container(
+                                          margin: EdgeInsets.only(top: 10),
+                                          child: Column(
+                                            children: [
+                                              SizedBox(height: 20,),
+                                              Text("Select payment method",
+                                                style: TextStyle(
+                                                    color: Theme.of(context).colorScheme.black,
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 15),),
+                                              RadioListTile(
+                                                title: Text("RazorPay"),
+                                                value: "razorPay",
+                                                groupValue: payMethod,
                                                 onChanged: (value) {
                                                   setState(() {
-                                                    isWallet = value!;
-                                                    isGoldWallet = false;
-                                                    isSilverWallet = false;
-                                                    // _roomController.text = '${item.id}';
-                                                    // print('${_roomController.text}');
+                                                    payMethod = value.toString();
                                                   });
+                                                  print(
+                                                      "paymethod here ${payMethod}");
                                                 },
-                                                controlAffinity: ListTileControlAffinity.leading,
                                               ),
-                                            ),
-                                            // isGold == true?
-                                            // Container(
-                                            //   height: 50,
-                                            //   child: CheckboxListTile(
-                                            //     title: Text("Gold-916 Wallet : ₹ ${goldenWallet.toStringAsFixed(2)}"),
-                                            //     value: isGoldWallet,
-                                            //     activeColor: colors.secondary2,
-                                            //     checkColor: colors.blackTemp,
-                                            //     onChanged: (value) {
-                                            //       setState(() {
-                                            //         isGoldWallet = value!;
-                                            //         isWallet = false;
-                                            //         isSilverWallet = false;
-                                            //         // _roomController.text = '${item.id}';
-                                            //         // print('${_roomController.text}');
-                                            //       });
-                                            //     },
-                                            //     controlAffinity: ListTileControlAffinity.leading,
-                                            //   ),
-                                            // )
-                                            //     : SizedBox(),
-                                            // isGold == false ?
-                                            // Container(
-                                            //   height: 50,
-                                            //   child: CheckboxListTile(
-                                            //     title: Text("Gold-999 Wallet : ₹ ${silverWallet.toStringAsFixed(2)}"),
-                                            //     value: isSilverWallet,
-                                            //     activeColor: colors.secondary2,
-                                            //     checkColor: colors.blackTemp,
-                                            //     onChanged: (value) {
-                                            //       setState(() {
-                                            //         isSilverWallet = value!;
-                                            //         isWallet = false;
-                                            //         isGoldWallet = false;
-                                            //         // _roomController.text = '${item.id}';
-                                            //         // print('${_roomController.text}');
-                                            //       });
-                                            //     },
-                                            //     controlAffinity: ListTileControlAffinity.leading,
-                                            //   ),
-                                            // )
-                                            //     : SizedBox(),
-                                            isWallet ?
-                                            Container(
-                                              margin: EdgeInsets.all(15),
-                                              child: TextFormField(
-                                                controller: walletAmountController,
-                                                onFieldSubmitted: (value){
-                                                  // if (curIndex == null) {
-                                                  //   setSnackbar("Please Select or Add Address", context);
-                                                  //   return;
-                                                  // }
-                                                  restAmount = totalAmount - double.parse(walletAmountController.text);
-                                                  // addOrderGold(amountPasValue);
-                                                  print("rest amount here and total amount here as well ${restAmount} and ${totalAmount}");
+
+                                              RadioListTile(
+                                                title: Text("Setu"),
+                                                value: "setu",
+                                                groupValue: payMethod,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    payMethod = value.toString();
+                                                  });
+
+                                                  print(
+                                                      "paymethod here ${payMethod}");
                                                 },
-                                                autofocus: true,
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  color: Colors.blue,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                                keyboardType: TextInputType.number,
-                                                decoration: InputDecoration(
-                                                  focusColor: Colors.white,
-                                                  // prefixIcon: Icon(
-                                                  //   Icons.person_outline_rounded,
-                                                  //   color: Colors.grey,
-                                                  // ),
-
-                                                  border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                  ),
-                                                  focusedBorder: OutlineInputBorder(
-                                                    borderSide: const BorderSide(
-                                                        color: Colors.blue, width: 1.0),
-                                                    borderRadius: BorderRadius.circular(10.0),
-                                                  ),
-                                                  fillColor: Colors.grey,
-                                                  hintText: "₹ Enter amount used from Wallet",
-                                                  hintStyle: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                  labelText: '₹ Enter amount used from Wallet',
-                                                  labelStyle: TextStyle(
-                                                    color: Colors.grey,
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                ),
                                               ),
-                                            )
-                                                : SizedBox.shrink(),
-                                            // Container(
-                                            //   height: 50,
-                                            //   child: CheckboxListTile(
-                                            //     title: Text("RazorPay"),
-                                            //     value: isRazor,
-                                            //     activeColor: MyColorName.primaryDark,
-                                            //     checkColor: MyColorName.colorTextPrimary,
-                                            //     onChanged: (value) {
-                                            //       setState(() {
-                                            //         isRazor = value!;
-                                            //         // _roomController.text = '${item.id}';
-                                            //         // print('${_roomController.text}');
-                                            //       });
-                                            //     },
-                                            //     controlAffinity: ListTileControlAffinity.leading,
-                                            //   ),
-                                            // )
-                                          ],
+
+                                              // Container(
+                                              //   child: Row(
+                                              //     children: [
+                                              //       Container(
+                                              //         child: Cont,
+                                              //       ),
+                                              //
+                                              //     ],
+                                              //   ),
+                                              // )
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      // paymentMode(),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 20, vertical: 10),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment
-                                              .center,
-                                          children: [
-                                            Text(
-                                              'Order Summary',
-                                              style: TextStyle(
-                                               color: Theme.of(context).colorScheme.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15,
-                                              ),
-                                            ),
-
-                                          ],
-                                        ),
-                                      ),
-                                      choiceAmountController.text.isNotEmpty ?
-                                      buySummary()
-                                          : SizedBox(),
-                                      choiceAmountController.text.isEmpty
-                                          ? SizedBox
-                                          .shrink()
-                                          : Container(
-                                        margin: EdgeInsets.only(top: 10),
-                                        child: Column(
-                                          children: [
-                                            SizedBox(height: 20,),
-                                            Text("Select payment method",
-                                              style: TextStyle(
-                                                  color: Theme.of(context).colorScheme.black,
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 15),),
-                                            RadioListTile(
-                                              title: Text("RazorPay"),
-                                              value: "razorPay",
-                                              groupValue: payMethod,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  payMethod = value.toString();
-                                                });
-                                                print(
-                                                    "paymethod here ${payMethod}");
-                                              },
-                                            ),
-
-                                            RadioListTile(
-                                              title: Text("Setu"),
-                                              value: "setu",
-                                              groupValue: payMethod,
-                                              onChanged: (value) {
-                                                setState(() {
-                                                  payMethod = value.toString();
-                                                });
-
-                                                print(
-                                                    "paymethod here ${payMethod}");
-                                              },
-                                            ),
-
-                                            // Container(
-                                            //   child: Row(
-                                            //     children: [
-                                            //       Container(
-                                            //         child: Cont,
-                                            //       ),
-                                            //
-                                            //     ],
-                                            //   ),
-                                            // )
-                                          ],
-                                        ),
-                                      ),
 
 
-                                      payMethod == "razorPay" ? GestureDetector(
-                                        onTap: () {
-                                          if (totalAmount > 100000) {
-                                            showDialog(
-                                                context: context,
-                                                // barrierDismissible: false,
-                                                builder: (
-                                                    BuildContext context) {
-                                                  return AlertDialog(
-                                                    backgroundColor: colors
-                                                        .secondary2,
-                                                    title: Text("KYC",
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold
-                                                      ),),
-                                                    content: Text(
-                                                      "You need to update KYC to buy digital gold worth more than 1 Lacs",
-                                                      style: TextStyle(
-                                                          fontSize: 14
-                                                      ),),
+                                        payMethod == "razorPay" ? GestureDetector(
+                                          onTap: () {
+                                            if (totalAmount > 100000) {
+                                              showDialog(
+                                                  context: context,
+                                                  // barrierDismissible: false,
+                                                  builder: (
+                                                      BuildContext context) {
+                                                    return AlertDialog(
+                                                      backgroundColor: colors
+                                                          .secondary2,
+                                                      title: Text("KYC",
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight
+                                                                .bold
+                                                        ),),
+                                                      content: Text(
+                                                        "You need to update KYC to buy digital gold worth more than 1 Lacs",
+                                                        style: TextStyle(
+                                                            fontSize: 14
+                                                        ),),
 
-                                                    actions: <Widget>[
-                                                      InkWell(
-                                                        onTap: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Container(
-                                                          height: 40,
-                                                          width: 100,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius
-                                                                .circular(20.0),
-                                                            gradient: LinearGradient(
-                                                                colors: [
-                                                                  colors
-                                                                      .black54,
-                                                                  colors
-                                                                      .blackTemp,
-                                                                ],
-                                                                begin: Alignment
-                                                                    .topCenter,
-                                                                end: Alignment
-                                                                    .bottomCenter),
-                                                          ),
-                                                          child: Center(
-                                                              child: Text(
-                                                                "No",
-                                                                style: TextStyle(
-                                                                    color: colors
-                                                                        .secondary2),
-                                                              )),
-                                                        ),
-                                                      ),
-                                                      InkWell(
-                                                        onTap: () async {
-                                                          var result = await Navigator
-                                                              .push(context,
-                                                              MaterialPageRoute(
-                                                                  builder: (
-                                                                      context) =>
-                                                                      KYC()));
-                                                          // Navigator.pop(context);
-                                                          if (result == true) {
+                                                      actions: <Widget>[
+                                                        InkWell(
+                                                          onTap: () {
                                                             Navigator.pop(
                                                                 context);
-                                                            doPayment();
-                                                          }
-                                                        },
-                                                        child: Container(
-                                                          height: 40,
-                                                          width: 100,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius
-                                                                .circular(20.0),
-                                                            gradient: LinearGradient(
-                                                                colors: [
-                                                                  colors
-                                                                      .black54,
-                                                                  colors
-                                                                      .blackTemp,
-                                                                ],
-                                                                begin: Alignment
-                                                                    .topCenter,
-                                                                end: Alignment
-                                                                    .bottomCenter),
+                                                          },
+                                                          child: Container(
+                                                            height: 40,
+                                                            width: 100,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .circular(20.0),
+                                                              gradient: LinearGradient(
+                                                                  colors: [
+                                                                    colors
+                                                                        .black54,
+                                                                    colors
+                                                                        .blackTemp,
+                                                                  ],
+                                                                  begin: Alignment
+                                                                      .topCenter,
+                                                                  end: Alignment
+                                                                      .bottomCenter),
+                                                            ),
+                                                            child: Center(
+                                                                child: Text(
+                                                                  "No",
+                                                                  style: TextStyle(
+                                                                      color: colors
+                                                                          .secondary2),
+                                                                )),
                                                           ),
-                                                          child: Center(
-                                                              child: Text(
-                                                                "Yes",
-                                                                style: TextStyle(
-                                                                    color: colors
-                                                                        .secondary2),
-                                                              )),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                });
-                                          } else {
-                                            if (choiceAmountController.text
-                                                .isNotEmpty) {
-                                              if (choiceAmountController.text
-                                                  .isNotEmpty
-                                                  || resultGram
-                                                      .toString()
-                                                      .isNotEmpty
-                                                  || choiceAmountControllerGram
-                                                      .text
-                                                      .isNotEmpty) {
-                                                doPayment();
-                                              }
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            var result = await Navigator
+                                                                .push(context,
+                                                                MaterialPageRoute(
+                                                                    builder: (
+                                                                        context) =>
+                                                                        KYC()));
+                                                            // Navigator.pop(context);
+                                                            if (result == true) {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              doPayment();
+                                                            }
+                                                          },
+                                                          child: Container(
+                                                            height: 40,
+                                                            width: 100,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .circular(20.0),
+                                                              gradient: LinearGradient(
+                                                                  colors: [
+                                                                    colors
+                                                                        .black54,
+                                                                    colors
+                                                                        .blackTemp,
+                                                                  ],
+                                                                  begin: Alignment
+                                                                      .topCenter,
+                                                                  end: Alignment
+                                                                      .bottomCenter),
+                                                            ),
+                                                            child: Center(
+                                                                child: Text(
+                                                                  "Yes",
+                                                                  style: TextStyle(
+                                                                      color: colors
+                                                                          .secondary2),
+                                                                )),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
                                             } else {
-                                              Fluttertoast.showToast(
-                                                  msg: "Please Enter amount or grams!!");
+                                              if (choiceAmountController.text
+                                                  .isNotEmpty) {
+                                                if (choiceAmountController.text
+                                                    .isNotEmpty
+                                                    || resultGram
+                                                        .toString()
+                                                        .isNotEmpty
+                                                    || choiceAmountControllerGram
+                                                        .text
+                                                        .isNotEmpty) {
+
+                                                  if(isWallet && restAmount <= 0){
+                                                    purchaseGoldWhenTotalZero();
+                                                  }else {
+                                                    doPayment();
+                                                  }
+
+                                                }
+                                              } else {
+                                                Fluttertoast.showToast(
+                                                    msg: "Please Enter amount or grams!!");
+                                              }
                                             }
-                                          }
-                                        },
-                                        child: Container(
-                                          margin: EdgeInsets.only(top: 10),
-                                          height: 40,
-                                          width: 250,
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(30)),
-                                              gradient: LinearGradient(colors: [
-                                                isBuyNow
-                                                    ? colors.secondary2
-                                                    : Colors
-                                                    .grey,
-                                                isBuyNow
-                                                    ? Color(0xffB27E29)
-                                                    : Colors
-                                                    .black12,
-                                              ])),
-                                          child: Center(
-                                            child: Text(
-                                              'BUY NOW',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold
+                                          },
+                                          child: Container(
+                                            margin: EdgeInsets.only(top: 10),
+                                            height: 40,
+                                            width: 250,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                gradient: LinearGradient(colors: [
+                                                  isBuyNow
+                                                      ? colors.secondary2
+                                                      : Colors
+                                                      .grey,
+                                                  isBuyNow
+                                                      ? Color(0xffB27E29)
+                                                      : Colors
+                                                      .black12,
+                                                ])),
+                                            child: Center(
+                                              child: Text(
+                                                'BUY NOW',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      ) :
-                                      GestureDetector(
-                                        onTap: () async {
-                                          print("setu api here");
-                                          if (totalAmount > 100000) {
-                                            showDialog(
-                                                context: context,
-                                                // barrierDismissible: false,
-                                                builder: (
-                                                    BuildContext context) {
-                                                  return AlertDialog(
-                                                    backgroundColor: colors
-                                                        .secondary2,
-                                                    title: Text("KYC",
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold
-                                                      ),),
-                                                    content: Text(
-                                                      "You need to update KYC to buy digital gold worth more than 1 Lacs",
-                                                      style: TextStyle(
-                                                          fontSize: 14
-                                                      ),),
+                                        ) :
+                                        GestureDetector(
+                                          onTap: () async {
+                                            print("setu api here");
+                                            if (totalAmount > 100000) {
+                                              showDialog(
+                                                  context: context,
+                                                  // barrierDismissible: false,
+                                                  builder: (BuildContext context) {
+                                                    return AlertDialog(
+                                                      backgroundColor: colors
+                                                          .secondary2,
+                                                      title: Text("KYC",
+                                                        style: TextStyle(
+                                                            fontWeight: FontWeight
+                                                                .bold
+                                                        ),),
+                                                      content: Text(
+                                                        "You need to update KYC to buy digital gold worth more than 1 Lacs",
+                                                        style: TextStyle(
+                                                            fontSize: 14
+                                                        ),),
 
-                                                    actions: <Widget>[
-                                                      InkWell(
-                                                        onTap: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: Container(
-                                                          height: 40,
-                                                          width: 100,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius
-                                                                .circular(20.0),
-                                                            gradient: LinearGradient(
-                                                                colors: [
-                                                                  colors
-                                                                      .black54,
-                                                                  colors
-                                                                      .blackTemp,
-                                                                ],
-                                                                begin: Alignment
-                                                                    .topCenter,
-                                                                end: Alignment
-                                                                    .bottomCenter),
-                                                          ),
-                                                          child: Center(
-                                                              child: Text(
-                                                                "No",
-                                                                style: TextStyle(
-                                                                    color: colors
-                                                                        .secondary2),
-                                                              )),
-                                                        ),
-                                                      ),
-                                                      InkWell(
-                                                        onTap: () async {
-                                                          var result = await Navigator
-                                                              .push(context,
-                                                              MaterialPageRoute(
-                                                                  builder: (
-                                                                      context) =>
-                                                                      KYC()));
-                                                          // Navigator.pop(context);
-                                                          if (result == true) {
+                                                      actions: <Widget>[
+                                                        InkWell(
+                                                          onTap: () {
                                                             Navigator.pop(
                                                                 context);
-                                                            //  doPayment();
-                                                          }
-                                                        },
-                                                        child: Container(
-                                                          height: 40,
-                                                          width: 100,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius
-                                                                .circular(20.0),
-                                                            gradient: LinearGradient(
-                                                                colors: [
-                                                                  colors
-                                                                      .black54,
-                                                                  colors
-                                                                      .blackTemp,
-                                                                ],
-                                                                begin: Alignment
-                                                                    .topCenter,
-                                                                end: Alignment
-                                                                    .bottomCenter),
+                                                          },
+                                                          child: Container(
+                                                            height: 40,
+                                                            width: 100,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .circular(20.0),
+                                                              gradient: LinearGradient(
+                                                                  colors: [
+                                                                    colors
+                                                                        .black54,
+                                                                    colors
+                                                                        .blackTemp,
+                                                                  ],
+                                                                  begin: Alignment
+                                                                      .topCenter,
+                                                                  end: Alignment
+                                                                      .bottomCenter),
+                                                            ),
+                                                            child: Center(
+                                                                child: Text(
+                                                                  "No",
+                                                                  style: TextStyle(
+                                                                      color: colors
+                                                                          .secondary2),
+                                                                )),
                                                           ),
-                                                          child: Center(
-                                                              child: Text(
-                                                                "Yes",
-                                                                style: TextStyle(
-                                                                    color: colors
-                                                                        .secondary2),
-                                                              )),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                });
-                                          } else {
-                                            setupApi();
-                                            // if (choiceAmountController.text.isNotEmpty) {
-                                            //   if (choiceAmountController.text.isNotEmpty
-                                            //       || resultGram.toString().isNotEmpty
-                                            //       || choiceAmountControllerGram.text.isNotEmpty) {
-                                            //     //doPayment();
-                                            //  //   setupApi(walletAmountController.text.isNotEmpty ? int.parse(restAmount.toString()) : int.parse(totalAmount.toString()));
-                                            //        setupApi();
-                                            //   }
-                                            // }else{
-                                            //   Fluttertoast.showToast(msg: "Please Enter amount or grams!!");
-                                            // }
-                                          }
-                                        },
-                                        child: payMethod != 'razorPay'
-                                            ? displayUpiApps()
-                                            : Container(
-                                          margin: EdgeInsets.only(top: 10),
-                                          height: 50,
-                                          width: 250,
-                                          decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(30)),
-                                              gradient: LinearGradient(colors: [
-                                                isBuyNow
-                                                    ? colors.secondary2
-                                                    : Colors
-                                                    .grey,
-                                                isBuyNow
-                                                    ? Color(0xffB27E29)
-                                                    : Colors
-                                                    .black12,
-                                              ])),
-                                          child: Center(
-                                            child: Text(
-                                              'BUY NOW',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold
+                                                        InkWell(
+                                                          onTap: () async {
+                                                            var result = await Navigator
+                                                                .push(context,
+                                                                MaterialPageRoute(
+                                                                    builder: (
+                                                                        context) =>
+                                                                        KYC()));
+                                                            // Navigator.pop(context);
+                                                            if (result == true) {
+                                                              Navigator.pop(
+                                                                  context);
+                                                              //  doPayment();
+                                                            }
+                                                          },
+                                                          child: Container(
+                                                            height: 40,
+                                                            width: 100,
+                                                            decoration: BoxDecoration(
+                                                              borderRadius: BorderRadius
+                                                                  .circular(20.0),
+                                                              gradient: LinearGradient(
+                                                                  colors: [
+                                                                    colors
+                                                                        .black54,
+                                                                    colors
+                                                                        .blackTemp,
+                                                                  ],
+                                                                  begin: Alignment
+                                                                      .topCenter,
+                                                                  end: Alignment
+                                                                      .bottomCenter),
+                                                            ),
+                                                            child: Center(
+                                                                child: Text(
+                                                                  "Yes",
+                                                                  style: TextStyle(
+                                                                      color: colors
+                                                                          .secondary2),
+                                                                )),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  });
+
+                                            } else {
+                                              setupApi();
+                                              // if (choiceAmountController.text.isNotEmpty) {
+                                              //   if (choiceAmountController.text.isNotEmpty
+                                              //       || resultGram.toString().isNotEmpty
+                                              //       || choiceAmountControllerGram.text.isNotEmpty) {
+                                              //     //doPayment();
+                                              //  //   setupApi(walletAmountController.text.isNotEmpty ? int.parse(restAmount.toString()) : int.parse(totalAmount.toString()));
+                                              //        setupApi();
+                                              //   }
+                                              // }else{
+                                              //   Fluttertoast.showToast(msg: "Please Enter amount or grams!!");
+                                              // }
+                                            }
+                                          },
+                                          child: payMethod != 'razorPay'
+                                              ? displayUpiApps()
+                                              : Container(
+                                            margin: EdgeInsets.only(top: 10),
+                                            height: 50,
+                                            width: 250,
+                                            decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(30)),
+                                                gradient: LinearGradient(colors: [
+                                                  isBuyNow
+                                                      ? colors.secondary2
+                                                      : Colors
+                                                      .grey,
+                                                  isBuyNow
+                                                      ? Color(0xffB27E29)
+                                                      : Colors
+                                                      .black12,
+                                                ])),
+                                            child: Center(
+                                              child: Text(
+                                                'BUY NOW',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
 
 
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                    ],
+                                        SizedBox(
+                                          height: 20,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 );
                               }
                           );
                         });
+                    startTimer ();
                   }else{
                     Fluttertoast.showToast(msg: "Please select grams first");
                   }
@@ -1778,6 +2000,24 @@ var balance = 0.0;
     );
   }
 
+
+  startTimer () {
+    Timer _timer =  Timer.periodic(Duration(seconds: 1), (timer) {
+      if(timerValue < 1){
+        timer.cancel();
+        timerValue = 0 ;
+        Navigator.pop(context);
+        choiceAmountController.clear();
+        choiceAmountControllerGram.clear();
+        setState(() {});
+        getLiveRates();
+      }else {
+        timerValue-- ;
+        bottomSheetState!((){});
+      }
+    });
+  }
+
   voucherView() {
     return Container(
       height: getHeight1(144),
@@ -1801,22 +2041,26 @@ var balance = 0.0;
           boxWidth(20),
           Container(
 
-              child: text("Apply Promocode",
+              child: text("Apply Promo-code",
                   fontSize: 12.sp, fontFamily: fontMedium)),
           boxWidth(20),
           InkWell(
             onTap: () async {
-              var result = await Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => VoucherListView()));
-              print(result);
-              if (result != null) {
-                setState(() {
-                  model = null;
-                  voucher = null;
-                });
+              if(choiceAmountController.text.isNotEmpty) {
+                var result = await Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => VoucherListView()));
+                print(result);
+                if (result != null) {
+                  setState(() {
+                    model = null;
+                    voucher = null;
+                  });
 
-                addVoucher(
-                    choiceAmountController.text, result.promo_code, result);
+                  addVoucher(
+                      choiceAmountController.text, result.promo_code, result);
+                }
+              }else {
+                Fluttertoast.showToast(msg: 'please enter any amount first');
               }
             },
             child: Container(
@@ -1905,7 +2149,22 @@ var balance = 0.0;
                 ),
               ],
             ),
-
+            boxHeight(10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                text(
+                  "Total",
+                  fontSize: 10.sp,
+                  fontFamily: fontRegular,
+                ),
+                text(
+                    "₹ ${totalWithoutWallet.toStringAsFixed(2)}",
+                  fontSize: 10.sp,
+                  fontFamily: fontBold,
+                ),
+              ],
+            ),
             SizedBox(height: 10,),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1916,7 +2175,7 @@ var balance = 0.0;
                   fontFamily: fontRegular,
                 ),
                 text(
-                 walletAmountController.text.isEmpty ? "-₹ 0 " :  "-₹ ${walletAmountController.text}",
+                 walletAmountController.text.isEmpty ? "-₹ 0 " :  "-₹ ${double.parse(walletAmountController.text).toStringAsFixed(2)}",
                   fontSize: 10.sp,
                   fontFamily: fontBold,
                 ),
@@ -1927,7 +2186,7 @@ var balance = 0.0;
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 text(
-                  "Total",
+                  "Total Payable",
                   fontSize: 10.sp,
                   fontFamily: fontSemibold,
                 ),
@@ -1949,16 +2208,32 @@ var balance = 0.0;
   doPayment(){
     double as =  walletAmountController.text.isNotEmpty ? double.parse(restAmount.toStringAsFixed(2)) : double.parse("${totalAmount.toStringAsFixed(2)}") ;
     double a = as * 100;
-    choiceAmountController.clear();
-    choiceAmountControllerGram.clear();
+
     print("this is @@ ${App.localStorage.getString("userId").toString()}, ${totalAmount.toString()} & ${resultGram.toString()}");
     RazorPayHelper razorHelper =
-    new RazorPayHelper(a.toString(), context, (result) {
+     RazorPayHelper(a.toString(), context, (result) {
       if (result == "error") {
         setState(() {});
+        choiceAmountController.clear();
+        choiceAmountControllerGram.clear();
       }
-    }, App.localStorage.getString("userId").toString(), resultGram.toString(), isGold, false);
+    }, App.localStorage.getString("userId").toString(), resultGram.toString(), isGold, false,walletAmount: walletAmountController.text);
     razorHelper.init(false);
+  }
+
+
+
+
+ Future<void> purchaseGoldWhenTotalZero () async {
+    PruchaseModel? a =  await purchaseGold(App.localStorage.getString("userId").toString(), restAmount.toString(),
+        resultGram.toString(), isGold, context,walletAmountController.text);
+    if(a != null && a.message != null ){
+      Fluttertoast.showToast(
+          backgroundColor: colors.secondary2,
+          fontSize: 18, textColor: colors.blackTemp,
+          msg: "Order confirm");
+      navigateScreen(context, OrderConfirmed());
+    }
   }
 
   ApiBaseHelper apiBase = new ApiBaseHelper();

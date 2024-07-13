@@ -109,6 +109,7 @@ class Data {
       String? tax, 
       String? status, 
       String? createdAt, 
+      String? invoice,
       String? purchaseType,}){
     _id = id;
     _type = type;
@@ -117,6 +118,7 @@ class Data {
     _credit = credit;
     _debit = debit;
     _ptype = ptype;
+    _invoice = invoice;
 
     _total = total;
     _amount = amount;
@@ -135,6 +137,7 @@ class Data {
   Data.fromJson(dynamic json) {
     _id = json['id'];
     _type = json['type'];
+    _invoice = json['invoice_url'];
     _userId = json['user_id'];
     _orderId = json['order_id'];
     _credit = json['credit'];
@@ -170,10 +173,12 @@ class Data {
   String? _tax;
   String? _status;
   String? _createdAt;
+  String? _invoice;
   String? _purchaseType;
 Data copyWith({  String? id,
   String? type, ptype,
   String? userId,
+  String? invoice,
   String? orderId,
   String? credit,
   String? debit,
@@ -192,6 +197,7 @@ Data copyWith({  String? id,
 }) => Data(  id: id ?? _id,
   type: type ?? _type,
   userId: userId ?? _userId,
+  invoice: invoice ?? _invoice,
   orderId: orderId ?? _orderId,
   credit: credit ?? _credit,
   debit: debit ?? _debit,
@@ -212,6 +218,7 @@ Data copyWith({  String? id,
 );
   String? get id => _id;
   String? get ptype => _ptype;
+  String? get invoice => _invoice;
 
   String? get type => _type;
   String? get userId => _userId;

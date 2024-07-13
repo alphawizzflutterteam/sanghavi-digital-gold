@@ -1,6 +1,7 @@
 
 
 import 'package:atticadesign/Helper/Session.dart';
+import 'package:atticadesign/Model/BankDetailResponse.dart';
 import 'package:atticadesign/Utils/constant.dart';
 import 'package:atticadesign/transaction.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,8 @@ import '../Utils/withdrawmodel.dart';
 import 'package:http/http.dart' as http;
 
 class WithDrawPage extends StatefulWidget {
-  const WithDrawPage({Key? key}) : super(key: key);
-
+  const WithDrawPage({Key? key, this.walletAmount}) : super(key: key);
+final String? walletAmount ;
   @override
   State<WithDrawPage> createState() => _WithDrawPageState();
 }
@@ -36,18 +37,21 @@ class _WithDrawPageState extends State<WithDrawPage> {
   TextEditingController upiId = TextEditingController();
   TextEditingController brancController = TextEditingController();
 
-  var bankDetail;
+  List <BankDetailData> bankDetail = [];
   bool isSelected = false;
   bool showBankFields = false;
   bool showUpiFields = false;
   bool isUpiSelected = false;
 
-  getBankDetail()async{
+  getBankDetail({String? upi})async{
+    bankDetail.clear();
+    setState(() {
+
+    });
     var headers = {
       'Cookie': 'ci_session=3aff9adf2fc5690a259804d394beb053a243e31d'
     };
-    var request = http.MultipartRequest('POST', Uri.parse('${baseUrl}save_user_bank_details/${App.localStorage.getString("userId").toString()}'));
-    print("okokkk ${baseUrl}save_user_bank_details/${App.localStorage.getString("userId").toString()}");
+    var request = http.MultipartRequest('POST', Uri.parse(upi == '' || upi == null ?'${baseUrl}save_user_bank_details/${App.localStorage.getString("userId").toString()}}' :'${baseUrl}save_user_bank_details/${App.localStorage.getString("userId").toString()}}/upi' ));
     request.headers.addAll(headers);
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 200) {
@@ -55,7 +59,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
       final jsonResponse = json.decode(finalResponse);
       print("final json response here ${jsonResponse}");
       setState(() {
-        bankDetail = jsonResponse['data'];
+        bankDetail = BankDetailsResponse.fromJson(jsonResponse).data ?? [];
       });
     }
     else {
@@ -65,6 +69,17 @@ class _WithDrawPageState extends State<WithDrawPage> {
   }
 
   saveBankDetails()async{
+    bool isSelected =  false ;
+    int? index;
+
+    bankDetail.forEach((element) {
+      if(element.isSelected ??  false) {
+        isSelected = true ;
+        index = bankDetail.indexWhere((element1) => element1 == element);
+      }
+    });
+
+
     var headers = {
       'Cookie': 'ci_session=6ea9035eb03c3b37384816f4b92b8b4957a8b7bd'
     };
@@ -77,8 +92,13 @@ class _WithDrawPageState extends State<WithDrawPage> {
       'ifsc_code': isUpi == true ? "" :ifscCode.text,
       'branch_name': isUpi == true ? "" : brancController.text,
       'upi_id': isUpi == true ? upiId.text : "",
-      'id': bankDetail == null || bankDetail == "" ? "" : bankDetail['data']['id']
+      if(isSelected && index!=null) 'id': bankDetail[index!].id ?? ''
+
+
+
+
     });
+
     print("ssssssss ${request.fields}");
     request.headers.addAll(headers);
     http.StreamedResponse response = await request.send();
@@ -89,9 +109,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
       setState(() {
       });
       Fluttertoast.showToast(msg: "${jsonResponse['message']}");
-      Future.delayed(Duration(seconds: 1),(){
-        return  getBankDetail();
-      });
+      getBankDetail(upi: isUpi == true ? 'upi': '');
     }
     else {
       print(response.reasonPhrase);
@@ -102,9 +120,8 @@ class _WithDrawPageState extends State<WithDrawPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration(milliseconds: 500),(){
-      return getBankDetail();
-    });
+    getBankDetail(upi: 'upi');
+
     getTransationHistory(App.localStorage.getString("userId").toString());
   }
   // getBankDetails() async {
@@ -174,13 +191,21 @@ class _WithDrawPageState extends State<WithDrawPage> {
         padding: const EdgeInsets.all(8.0),
         child: ListView(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10, left: 18.0),
-              child: Text(
-                "Withdraw Wallet",
-                style: TextStyle(color: colors.blackTemp, fontSize: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 18.0,right: 18),
+                child: Text(
+                  "Withdraw Wallet Balance: ",
+                  style: TextStyle(color: colors.blackTemp, fontSize: 14),
+                ),
               ),
-            ),
+              Text(
+                "${widget.walletAmount}",
+                style: TextStyle(color: colors.blackTemp, fontSize: 14),
+              )
+            ],),
             // Padding(
             //   padding: EdgeInsets.only(top: 10),
             //   child: Row(
@@ -332,119 +357,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
                 ),
               ),
             ),
-            Container(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Wrap(
-                    alignment: WrapAlignment.start,
-                    direction: Axis.horizontal,
-                    children: [
-                      ChoiceChip(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.horizontal(
-                                  left: Radius.circular(25),
-                                  right: Radius.circular(25))),
-                          //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
-                          backgroundColor: colors.secondary2.withOpacity(0.5),
-                          label: Text('1000',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  color: colors.blackTemp, fontSize: 20)),
-                          labelPadding: EdgeInsets.symmetric(horizontal: 12),
-                          selected: choiceAmountController.text == '1000',
-                          onSelected: (bool selected) {
-                            setState(() {
-                              choiceAmountController.text =
-                                  (selected ? '1000' : '');
-                              print("10::---$choiceAmountController");
-                            });
-                          },
-                          selectedColor: colors.secondary2
-                          //Color(0xff699a8d),
-                          ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      ChoiceChip(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.horizontal(
-                                left: Radius.circular(25),
-                                right: Radius.circular(25))),
-                        //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
-                        backgroundColor: colors.secondary2.withOpacity(0.5),
-                        label: Text('2000',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: colors.blackTemp, fontSize: 20)),
-                        labelPadding: EdgeInsets.symmetric(horizontal: 12),
-                        // selected: choice== 'right',
-                        selected: choiceAmountController.text == '2000',
-                        onSelected: (bool selected) {
-                          setState(() {
-                            print("20::");
-                            choiceAmountController.text =
-                                (selected ? '2000' : '');
-                          });
-                        },
-                        selectedColor: colors.secondary2,
-                        //Color(0xff699a8d),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      ChoiceChip(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.horizontal(
-                                left: Radius.circular(25),
-                                right: Radius.circular(25))),
-                        //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
-                        backgroundColor: colors.secondary2.withOpacity(0.5),
-                        label: Text('5000',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: colors.blackTemp, fontSize: 20)),
-                        labelPadding: EdgeInsets.symmetric(horizontal: 12),
-                        selected: choiceAmountController.text == '5000',
-                        onSelected: (bool selected) {
-                          setState(() {
-                            print("50::");
-                            choiceAmountController.text =
-                                (selected ? '5000' : '');
-                          });
-                        },
-                        selectedColor: colors.secondary2,
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.01,
-                      ),
-                      ChoiceChip(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.horizontal(
-                                left: Radius.circular(25),
-                                right: Radius.circular(25))),
-                        // side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
-                        backgroundColor: colors.secondary2.withOpacity(0.5),
-                        label: Text('10000',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                color: colors.blackTemp, fontSize: 20)),
-                        labelPadding: EdgeInsets.symmetric(horizontal: 12),
-                        selected: choiceAmountController.text == '10000',
-                        onSelected: (bool selected) {
-                          setState(() {
-                            print("100::");
-                            choiceAmountController.text =
-                                (selected ? '10000' : '');
-                          });
-                        },
-                        selectedColor: colors.secondary2,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                    ]),
-              ),
-            ),
+            amountChips(),
             // SizedBox(
             //   height: 20,
             // ),
@@ -471,6 +384,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
                             setState(() {
                               isUpi = !isUpi;
                             });
+                            getBankDetail(upi: 'upi');
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -511,6 +425,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
                             setState(() {
                               isUpi = !isUpi;
                             });
+                            getBankDetail(upi: '');
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -537,7 +452,7 @@ class _WithDrawPageState extends State<WithDrawPage> {
               height: 20,
             ),
 
-          bankName == null || bankDetail == "" || isUpi == false ? SizedBox.shrink() : InkWell(
+           isUpi == false ? SizedBox.shrink() : InkWell(
             onTap: (){
               setState(() {
                 showUpiFields = !showUpiFields;
@@ -563,8 +478,8 @@ class _WithDrawPageState extends State<WithDrawPage> {
               ),
           ),
 
-            if (isUpi)
-          bankDetail == null || bankDetail == "" || showUpiFields == true  ?    Container(
+             isUpi && showUpiFields == true
+              ?    Container(
                 margin: EdgeInsets.all(15),
                 child: TextFormField(
                   controller: upiId,
@@ -599,15 +514,18 @@ class _WithDrawPageState extends State<WithDrawPage> {
                     ),
                   ),
                 ),
-              ) : SizedBox.shrink(),
+              )
+               : SizedBox.shrink(),
             SizedBox(
               height: 20,
             ),
-          isUpi == true ? SizedBox.shrink() :  bankDetail == null || bankDetail == ""  ? SizedBox.shrink()  :  Center(
-              child: InkWell(
-                onTap: (){
+          isUpi == true
+              ? SizedBox.shrink()
+              :  Center(
+                    child: InkWell(
+                           onTap: (){
                   setState(() {
-                    showBankFields = true;
+                    showBankFields = !showBankFields;
                   });
                 },
                 child: Container(
@@ -629,308 +547,345 @@ class _WithDrawPageState extends State<WithDrawPage> {
                   ),
                 ),
               ),
-            ),
+            ) ,
 
             if (!isUpi)
-            bankDetail == null || bankDetail == "" || showBankFields == true ?   Container(
-                margin: EdgeInsets.all(15),
-                child: TextFormField(
-                  controller: bankName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    focusColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+              /*bankDetail.isEmpty &&*/ showBankFields == true ?
+              Column(children: [
+                Container(
+                  margin: EdgeInsets.all(15),
+                  child: TextFormField(
+                    controller: bankName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    fillColor: Colors.grey,
-                    hintText: "Enter Bank name",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    labelText: 'Enter Bank name',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ) : SizedBox.shrink(),
-            if (!isUpi)
-              bankDetail == null || bankDetail == "" || showBankFields == true ?  Container(
-                margin: EdgeInsets.all(15),
-                child: TextFormField(
-                  controller: acccountNumber,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    focusColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    fillColor: Colors.grey,
-                    hintText: "Enter Account Number",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    labelText: 'Enter Account Number',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      focusColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        const BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      fillColor: Colors.grey,
+                      hintText: "Enter Bank name",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      labelText: 'Enter Bank name',
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
-              ) : SizedBox.shrink(),
-            if (!isUpi)
-              bankDetail == null || bankDetail == "" || showBankFields == true  ? Container(
-                margin: EdgeInsets.all(15),
-                child: TextFormField(
-                  controller: accountHolderName,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    focusColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                Container(
+                  margin: EdgeInsets.all(15),
+                  child: TextFormField(
+                    controller: acccountNumber,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    fillColor: Colors.grey,
-                    hintText: "Enter Account Holder Name",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    labelText: 'Enter Account Holder Name',
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ): SizedBox.shrink(),
-            if (!isUpi)
-              bankDetail == null || bankDetail == "" ||  showBankFields == true  ?  Container(
-                margin:
-                    EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 10),
-                child: TextFormField(
-                  controller: ifscCode,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    focusColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                          const BorderSide(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    fillColor: Colors.grey,
-                    hintText: "Enter IFSC Code",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    labelText: "Enter IFSC Code",
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      focusColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        const BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      fillColor: Colors.grey,
+                      hintText: "Enter Account Number",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      labelText: 'Enter Account Number',
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
-              ): SizedBox.shrink(),
-            if (!isUpi)
-              bankDetail == null || bankDetail == "" ||  showBankFields == true  ? Container(
-                margin:
-                EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 10),
-                child: TextFormField(
-                  controller: brancController,
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.blue,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    focusColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                Container(
+                  margin: EdgeInsets.all(15),
+                  child: TextFormField(
+                    controller: accountHolderName,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide:
-                      const BorderSide(color: Colors.blue, width: 1.0),
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    fillColor: Colors.grey,
-                    hintText: "Enter branch name",
-                    hintStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    labelText: "Enter branch name",
-                    labelStyle: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      focusColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        const BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      fillColor: Colors.grey,
+                      hintText: "Enter Account Holder Name",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      labelText: 'Enter Account Holder Name',
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ),
                 ),
-              ) :  SizedBox.shrink(),
+                Container(
+                  margin:
+                  EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 10),
+                  child: TextFormField(
+                    controller: ifscCode,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      focusColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        const BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      fillColor: Colors.grey,
+                      hintText: "Enter IFSC Code",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      labelText: "Enter IFSC Code",
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin:
+                  EdgeInsets.only(left: 15, top: 15, right: 15, bottom: 10),
+                  child: TextFormField(
+                    controller: brancController,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    keyboardType: TextInputType.text,
+                    decoration: InputDecoration(
+                      focusColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                        const BorderSide(color: Colors.blue, width: 1.0),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      fillColor: Colors.grey,
+                      hintText: "Enter branch name",
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      labelText: "Enter branch name",
+                      labelStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                )
 
 
-        isUpi == true ?
-        bankDetail == null || bankDetail == "" ? SizedBox.shrink() :
-        InkWell(
-          onTap: (){
-            // acccountNumber = TextEditingController(text: bankDetail['data']['account_number']);
-            // ifscCode = TextEditingController(text: bankDetail['data']['ifsc_code']);
-            // bankName = TextEditingController(text: bankDetail['data']['bank_name']);
-            // accountHolderName = TextEditingController(text:bankDetail['data']['account_holder_name']);
-            // brancController = TextEditingController(text: bankDetail['data']['branch_name']);
-              upiId = TextEditingController(text: bankDetail['upi_id']);
-            setState(() {
-              isSelected = !isSelected;
-            });
-          },
-          child: Container(
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: isSelected == true ? Colors.green : Colors.grey,width: isSelected == true ? 2 :1)
-            ),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(child: Text("Upi Id:")),
-                    Expanded(child: Text("${bankDetail['upi_id']}")),
-                  ],
-                ),
+              ],): SizedBox.shrink(),
 
 
-              ],
-            ),
-          ),
-        ) :
-        bankDetail == null  || bankDetail == ""? SizedBox.shrink()  : InkWell(
-            onTap: (){
-              acccountNumber = TextEditingController(text: bankDetail['account_number']);
-              ifscCode = TextEditingController(text: bankDetail['ifsc_code']);
-              bankName = TextEditingController(text: bankDetail['bank_name']);
-              accountHolderName = TextEditingController(text:bankDetail['account_holder_name']);
-              brancController = TextEditingController(text: bankDetail['branch_name']);
-              setState(() {
-              isSelected = !isSelected;
-              });
-            },
-            child: Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(7),
-                border: Border.all(color: isSelected == true ? Colors.green : Colors.grey,width: isSelected == true ? 2 :1)
-              ),
-              margin: EdgeInsets.only(bottom: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: Text("Bank Name:")),
-                        Expanded(child: Text("${bankDetail['bank_name']}")),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: Text("Account Number:")),
-                        Expanded(child: Text("${bankDetail['account_number']}")),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: Text("Account Holder Name: ")),
-                        Expanded(child: Text("${bankDetail['account_holder_name']}")),
-                      ],
-                    ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(child: Text("IFSC Code:")),
-                      Expanded(child: Text("${bankDetail['ifsc_code']}")),
-                    ],
-                  ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(child: Text("Branch Name:")),
-                        Expanded(child: Text("${bankDetail['branch_name']}")),
-                      ],
-                    ),
 
-                  ],
-                ),
-              ),
-          ),
+            isUpi == false
+               ? bankDetail.isEmpty ? SizedBox()
+                : SizedBox(height: 150,
+              child: ListView.builder(
+                itemCount: bankDetail.length,
+                itemBuilder: (context, index) {
+
+                  return InkWell(
+                    onTap: (){
+                      acccountNumber = TextEditingController(text: bankDetail [index].accountNumber);
+                      ifscCode = TextEditingController(text: bankDetail[index].ifscCode);
+                      bankName = TextEditingController(text: bankDetail[index].bankName);
+                      accountHolderName = TextEditingController(text:bankDetail[index].accountHolderName);
+                      brancController = TextEditingController(text: bankDetail[index].branchName);
+                      bankDetail.forEach((element) {
+                        element.isSelected = false ;
+                      });
+                      setState(() {
+                        bankDetail[index].isSelected = !(bankDetail[index].isSelected ?? false);
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(7),
+                          border: Border.all(color: bankDetail[index].isSelected == true ? Colors.green : Colors.grey,width: bankDetail[index].isSelected == true ? 2 :1)
+                      ),
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: Text("Bank Name:")),
+                                    Expanded(child: Text("${bankDetail[index].bankName}")),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: Text("Account Number:")),
+                                    Expanded(child: Text("${bankDetail[index].accountNumber}")),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: Text("Account Holder Name: ")),
+                                    Expanded(child: Text("${bankDetail[index].accountHolderName}")),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: Text("IFSC Code:")),
+                                    Expanded(child: Text("${bankDetail[index].ifscCode}")),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(child: Text("Branch Name:")),
+                                    Expanded(child: Text("${bankDetail[index].branchName}")),
+                                  ],
+                                ),
+
+                              ],
+                            ),
+                          ),
+                          InkWell(
+                            onTap: (){
+
+                              deleteBankDetail(bankDetail[index].id.toString());
+
+                            },
+                              child: Icon(Icons.delete))
+
+                        ],
+                      ),
+                    ),
+                  );
+                },),)
+               : bankDetail.isEmpty ? SizedBox()
+                : SizedBox(height: 150,child: ListView.builder(
+                  itemCount: bankDetail.length,
+                  itemBuilder: (context, index) {
+                 return InkWell(
+                   onTap: (){
+                     // acccountNumber = TextEditingController(text: bankDetail['data']['account_number']);
+                     // ifscCode = TextEditingController(text: bankDetail['data']['ifsc_code']);
+                     // bankName = TextEditingController(text: bankDetail['data']['bank_name']);
+                     // accountHolderName = TextEditingController(text:bankDetail['data']['account_holder_name']);
+                     // brancController = TextEditingController(text: bankDetail['data']['branch_name']);
+                     upiId = TextEditingController(text: bankDetail[index].upiId);
+                     bankDetail.forEach((element) {
+                       element.isSelected = false ;
+                     });
+                     setState(() {
+                       bankDetail[index].isSelected = !(bankDetail[index].isSelected ?? false);
+                     });
+                   },
+                   child: Container(
+                     padding: EdgeInsets.all(10),
+                     decoration: BoxDecoration(
+                         borderRadius: BorderRadius.circular(7),
+                         border: Border.all(color: bankDetail[index].isSelected == true ? Colors.green : Colors.grey,width: bankDetail[index].isSelected == true ? 2 :1)
+                     ),
+                     margin: EdgeInsets.only(bottom: 10),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Row(
+                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                           crossAxisAlignment: CrossAxisAlignment.center,
+                           children: [
+                             Expanded(child: Text("Upi Id:")),
+                             Expanded(child: Text("${bankDetail[index].upiId}")),
+                             Expanded(child: IconButton(onPressed: (){
+                               deleteBankDetail(bankDetail[index].id.toString());
+                             },icon: Icon(Icons.delete),))
+                           ],
+                         ),
+
+
+                       ],
+                     ),
+                   ),
+                 ) ;
+               },),),
 
             GestureDetector(
               onTap: () async {
                 if (choiceAmountController.text.isNotEmpty) {
                   if (isUpi) {
-                    if ((upiId.text.isNotEmpty && upiId.text.contains("@")) ||
-                        upiId.text == null) {
+                    if ((upiId.text.isNotEmpty && upiId.text.contains("@"))) {
                       // if (upiId.text.isNotEmpty) {
                       Withdrawmodel? a = await withDrawApi(
                           amount: choiceAmountController.text,
@@ -960,8 +915,8 @@ class _WithDrawPageState extends State<WithDrawPage> {
                           msg: "Please enter valid upi link or bank details");
                     }
                   } else {
-                    if ((acccountNumber.text.isNotEmpty ||
-                            ifscCode.text.isNotEmpty) ||
+                    if ((acccountNumber.text.isNotEmpty &&
+                            ifscCode.text.isNotEmpty) &&
                         bankName.text.isNotEmpty) {
                       Withdrawmodel? a = await withDrawApi(
                           amount: choiceAmountController.text,
@@ -1039,17 +994,22 @@ class _WithDrawPageState extends State<WithDrawPage> {
                 //   App.localStorage.getString("userId").toString(),
                 // ),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
+                  if(snapshot.connectionState == ConnectionState.waiting){
+                    return Center(child: CircularProgressIndicator(),);
+                  }else if (snapshot.hasError){
+                    return  Center(child: Icon(Icons.error_outline));
+                  } else {
                     WithdrawHistory? transationModel = snapshot.data;
                     double amount = 0.00, tranctionData = 0.00;
 
                     return transationModel!.data!.length > 0
                         ? Container(
-                            height: MediaQuery.of(context).size.height,
+                            //height: MediaQuery.of(context).size.height,
                             child: ListView.builder(
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
                                 itemCount: transationModel.data!.length,
+                                reverse: true,
                                 itemBuilder: (context, index) {
                                   if (transationModel.data![index].amount !=
                                       null) {
@@ -1073,12 +1033,13 @@ class _WithDrawPageState extends State<WithDrawPage> {
                                             "assets/images/lockercupan.png",
                                           ),
                                         ),
-                                        title: Text(
+                                        title:  Text(
                                           "${transationModel.data![index].createdAt.toString()}",
                                           style: TextStyle(
                                               color: colors.blackTemp,
                                               fontSize: 18),
                                         ),
+                                        subtitle:transationModel.data![index].remarks !=null ? Text('${transationModel.data![index].remarks}') : SizedBox(),
                                         // subtitle: RichText(
                                         //   text: TextSpan(
                                         //     style: TextStyle(
@@ -1093,12 +1054,36 @@ class _WithDrawPageState extends State<WithDrawPage> {
                                         //     ],
                                         //   ),
                                         // ),
-                                        trailing: Text(
-                                          "₹ ${transationModel.data![index].amount.toString()}",
-                                          style: TextStyle(
-                                              color: colors.blackTemp,
-                                              fontSize: 16),
-                                        ),
+                                        trailing: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                          Text(
+                                            "₹ ${transationModel.data![index].amount.toString()}",
+                                            style: TextStyle(
+                                                color: colors.blackTemp,
+                                                fontSize: 16),
+                                          ),
+                                          transationModel.data![index].remarks ==null && transationModel.data![index].isApproved == '0'
+                                              ? Card(
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text('Pending', style: TextStyle(color: Colors.blueAccent),),
+                                              ))
+                                              : transationModel.data![index].isApproved == '1'
+                                                 ? Card(
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text('Approved', style: TextStyle(color: Colors.green),),
+                                              ))
+                                                 : Card(
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(8.0),
+                                                child: Text('Rejected', style: TextStyle(color: Colors.red),),
+                                              ))
+                                        ],),
                                       ),
                                     ),
                                   );
@@ -1113,15 +1098,6 @@ class _WithDrawPageState extends State<WithDrawPage> {
                               style:
                                   TextStyle(color: Colors.white, fontSize: 22),
                             )));
-                  } else if (snapshot.hasError) {
-                    return Icon(Icons.error_outline);
-                  } else {
-                    return Container(
-                        height: 50,
-                        width: 50,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1,
-                        ));
                   }
                 })
           ],
@@ -1129,4 +1105,144 @@ class _WithDrawPageState extends State<WithDrawPage> {
       ),
     );
   }
+
+
+  Widget amountChips() {
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Wrap(
+            alignment: WrapAlignment.start,
+            direction: Axis.horizontal,
+            children: [
+              ChoiceChip(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(25),
+                          right: Radius.circular(25))),
+                  //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
+                  backgroundColor: colors.secondary2.withOpacity(0.5),
+                  label: Text('1000',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: colors.blackTemp, fontSize: 20)),
+                  labelPadding: EdgeInsets.symmetric(horizontal: 12),
+                  selected: choiceAmountController.text == '1000',
+                  onSelected: (bool selected) {
+                    setState(() {
+                      choiceAmountController.text =
+                      (selected ? '1000' : '');
+                      print("10::---$choiceAmountController");
+                    });
+                  },
+                  selectedColor: colors.secondary2
+                //Color(0xff699a8d),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              ChoiceChip(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(25),
+                        right: Radius.circular(25))),
+                //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
+                backgroundColor: colors.secondary2.withOpacity(0.5),
+                label: Text('2000',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: colors.blackTemp, fontSize: 20)),
+                labelPadding: EdgeInsets.symmetric(horizontal: 12),
+                // selected: choice== 'right',
+                selected: choiceAmountController.text == '2000',
+                onSelected: (bool selected) {
+                  setState(() {
+                    print("20::");
+                    choiceAmountController.text =
+                    (selected ? '2000' : '');
+                  });
+                },
+                selectedColor: colors.secondary2,
+                //Color(0xff699a8d),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              ChoiceChip(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(25),
+                        right: Radius.circular(25))),
+                //  side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
+                backgroundColor: colors.secondary2.withOpacity(0.5),
+                label: Text('5000',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: colors.blackTemp, fontSize: 20)),
+                labelPadding: EdgeInsets.symmetric(horizontal: 12),
+                selected: choiceAmountController.text == '5000',
+                onSelected: (bool selected) {
+                  setState(() {
+                    print("50::");
+                    choiceAmountController.text =
+                    (selected ? '5000' : '');
+                  });
+                },
+                selectedColor: colors.secondary2,
+              ),
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.01,
+              ),
+              ChoiceChip(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(
+                        left: Radius.circular(25),
+                        right: Radius.circular(25))),
+                // side: BorderSide(width: 1, color: Color(0xff0C3B2E)),
+                backgroundColor: colors.secondary2.withOpacity(0.5),
+                label: Text('10000',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: colors.blackTemp, fontSize: 20)),
+                labelPadding: EdgeInsets.symmetric(horizontal: 12),
+                selected: choiceAmountController.text == '10000',
+                onSelected: (bool selected) {
+                  setState(() {
+                    print("100::");
+                    choiceAmountController.text =
+                    (selected ? '10000' : '');
+                  });
+                },
+                selectedColor: colors.secondary2,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+            ]),
+      ),
+    );
+  }
+
+  Future <void> deleteBankDetail (String id) async{
+    var headers = {
+      'Cookie': 'ci_session=6ea9035eb03c3b37384816f4b92b8b4957a8b7bd'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse('${baseUrl}delete_user_payment_option/$id'));
+    request.headers.addAll(headers);
+    print('${request.url}');
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      var finalResult = await response.stream.bytesToString();
+      final jsonResponse = json.decode(finalResult);
+      print("final response here ${jsonResponse}");
+      bankDetail.removeWhere((element) => element.id.toString() == id);
+      setState(() {
+      });
+      Fluttertoast.showToast(msg: "${jsonResponse['message']}");
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
 }
+

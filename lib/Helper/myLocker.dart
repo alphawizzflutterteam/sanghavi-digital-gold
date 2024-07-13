@@ -2,6 +2,7 @@ import 'package:atticadesign/Helper/wallettopup.dart';
 import 'package:atticadesign/Utils/constant.dart';
 import 'package:atticadesign/new_cart.dart';
 import 'package:atticadesign/selldigitalgold.dart';
+import 'package:atticadesign/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class MyLocker extends StatefulWidget {
 
 class _MyLockerState extends State<MyLocker> {
 
-  UserDetailsModel userDetailsModel = UserDetailsModel();
+  UserDetailsModel? userDetailsModel ;
   double silverWallet = 0.00,
       goldenWallet = 0.00,
       totalBalance = 0.00;
@@ -37,39 +38,39 @@ class _MyLockerState extends State<MyLocker> {
     userDetailsModel =
         await userDetails(App.localStorage.getString("userId").toString());
     if (userDetailsModel != null &&
-        userDetailsModel.data![0].silverWallet != null &&
-        userDetailsModel.data![0].silverWallet != "") {
+        userDetailsModel?.data?[0].silverWallet != null &&
+        userDetailsModel?.data?[0].silverWallet != "") {
       setState(() {
-        print(userDetailsModel.data![0].silverWallet.toString());
+        print(userDetailsModel?.data?[0].silverWallet.toString());
         availebaleSilveGram =
-            double.parse(userDetailsModel.data![0].silverWallet.toString());
+            double.parse(userDetailsModel?.data?[0].silverWallet.toString() ?? '0.0');
         // silverWallet =
         //     double.parse(userDetailsModel.data![0].silverWallet.toString()) *
         //         silverGram;
-        silverWallet = double.parse(livePrice.gold2.toString()) * double.parse(userDetailsModel.data![0].silverWallet.toString());
+        silverWallet = double.parse(livePrice.gold2.toString()) * double.parse(userDetailsModel?.data?[0].silverWallet.toString() ?? '0.0');
       });
     }
     if (userDetailsModel != null &&
-        userDetailsModel.data![0].goldWallet != null &&
-        userDetailsModel.data![0].goldWallet != "") {
+        userDetailsModel?.data![0].goldWallet != null &&
+        userDetailsModel?.data![0].goldWallet != "") {
       setState(() {
-        print(userDetailsModel.data![0].goldWallet.toString());
+        print(userDetailsModel?.data![0].goldWallet.toString());
         availeGoldgram =
-            double.parse(userDetailsModel.data![0].goldWallet.toString());
+            double.parse(userDetailsModel?.data![0].goldWallet.toString() ?? '0.0');
         // goldenWallet =
         //     double.parse(userDetailsModel.data![0].goldWallet.toString()) *
         //         goldGram;
-        goldenWallet = double.parse(livePrice.gold1.toString()) * double.parse(userDetailsModel.data![0].goldWallet.toString());
+        goldenWallet = double.parse(livePrice.gold1.toString()) * double.parse(userDetailsModel?.data![0].goldWallet.toString() ?? '0.0');
         print("this is gold wallet ## ${goldenWallet.toString()}");
       });
     }
     if (userDetailsModel != null &&
-        userDetailsModel.data![0].balance != null &&
-        userDetailsModel.data![0].balance != "") {
+        userDetailsModel?.data![0].balance != null &&
+        userDetailsModel?.data![0].balance != "") {
       setState(() {
-        print(userDetailsModel.data![0].balance.toString());
+        print(userDetailsModel?.data![0].balance.toString());
         totalBalance =
-            double.parse(userDetailsModel.data![0].balance.toString());
+            double.parse(userDetailsModel?.data![0].balance.toString() ?? '0.0');
       });
     }
   }
@@ -108,6 +109,53 @@ class _MyLockerState extends State<MyLocker> {
                   Text(
                     "₹ ${totalBalance.toStringAsFixed(2)}",
                     style: TextStyle(color: colors.blackTemp, fontSize: 20),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Center(
+                    child: InkWell(
+                      onTap: () {
+                        /*Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          NewCart()
+                                          // AddNewAddressDelivery(
+                                          //   typeGoldOrSilver: true,
+                                          // goldGrams: availeGoldgram.toStringAsFixed(2),
+                                          // silverGrams: availebaleSilveGram.toStringAsFixed(2),
+                                          // )
+                                  ));*/
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Transaction()
+
+                            ));
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [ colors.black54,
+                                colors.blackTemp,],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                            borderRadius: BorderRadius.circular(30.0)),
+                        height: 40,
+                        width: 250,
+
+                        child: Center(
+                          child: Text(
+                            "Transactions",
+                            style: TextStyle(
+                                color: colors.secondary2, fontSize: 15),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -172,7 +220,7 @@ class _MyLockerState extends State<MyLocker> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    WithDrawPage()));
+                                    WithDrawPage(walletAmount: "₹ ${totalBalance.toStringAsFixed(2)}",)));
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -338,14 +386,14 @@ class _MyLockerState extends State<MyLocker> {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      /*SizedBox(
                         width: 20,
                       ),
                       Expanded(
                         child: Center(
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
+                              *//*Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
@@ -355,6 +403,13 @@ class _MyLockerState extends State<MyLocker> {
                                           // goldGrams: availeGoldgram.toStringAsFixed(2),
                                           // silverGrams: availebaleSilveGram.toStringAsFixed(2),
                                           // )
+                                  ));*//*
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          Transaction()
+
                                   ));
                             },
                             child: Container(
@@ -370,7 +425,7 @@ class _MyLockerState extends State<MyLocker> {
 
                               child: Center(
                                 child: Text(
-                                  "Delivery ",
+                                  "Transactions",
                                   style: TextStyle(
                                       color: colors.secondary2, fontSize: 15),
                                 ),
@@ -378,7 +433,7 @@ class _MyLockerState extends State<MyLocker> {
                             ),
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

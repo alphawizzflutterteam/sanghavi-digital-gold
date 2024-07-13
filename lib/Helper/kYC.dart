@@ -31,6 +31,12 @@ class _KYCState extends State<KYC> {
 
   Future getImage(ImgSource source, BuildContext context) async {
     var image = await ImagePickerGC.pickImage(
+      enableCloseButton: true,
+      closeIcon: Icon(
+        Icons.close,
+        color: Colors.red,
+        size: 12,
+      ),
       context: context,
       source: source,
       cameraIcon: Icon(
@@ -75,7 +81,8 @@ class _KYCState extends State<KYC> {
   ];
 
   void requestPermission(BuildContext context) async {
-    if (await Permission.camera.isPermanentlyDenied ||
+    getImage(ImgSource.Gallery, context);
+    /*if (await Permission.camera.isPermanentlyDenied ||
         await Permission.storage.isPermanentlyDenied) {
       openAppSettings();
     } else {
@@ -94,7 +101,7 @@ class _KYCState extends State<KYC> {
           setSnackbar("Oops you just denied the permission", context);
         }
       }
-    }
+    }*/
   }
 
   Future<void> submitSubscription() async {

@@ -68,6 +68,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
+
   get child => null;
 
   get imageSliders => null;
@@ -87,10 +89,21 @@ class _HomePageState extends State<HomePage> {
     fontSize: 14.0,
     fontFamily: 'Horizon',
   );
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    callApi();
 
+    Timer.periodic(Duration(minutes: 1), (timer) {
+      callApi();
+    });
+
+  }
+  var livePrice;
   @override
   Widget build(BuildContext context) {
-    var livePrice = Provider.of<LivePriceProvider>(context);
+
     getCart();
    // WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
     return SafeArea(
@@ -441,13 +454,14 @@ class _HomePageState extends State<HomePage> {
             ),
 
             Container(
+              alignment: Alignment.center,
               height: 200,
               child: FutureBuilder(
                   future: getBaneerHomeScreen(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    BannerModel model = snapshot.data;
-                    if (snapshot.hasData) {
-                      return model.error == false
+                    BannerModel? model = snapshot.data;
+                     if (snapshot.hasData) {
+                      return model?.error == false
                           ?  Container(
                         height: 180,
                         width: double.infinity,
@@ -473,7 +487,7 @@ class _HomePageState extends State<HomePage> {
                               print(CarouselPageChangedReason.controller);
                             },
                           ),
-                          items: model.data!.map((val) {
+                          items: model?.data!.map((val) {
                             return Container(
                               width: MediaQuery.of(context).size.width,
                               child: ClipRRect(
@@ -528,6 +542,7 @@ class _HomePageState extends State<HomePage> {
                       return Icon(Icons.error_outline);
                     } else {
                       return Container(
+
                         width: 40,
                         height: 40,
                         child: Center(
@@ -720,5 +735,14 @@ class _HomePageState extends State<HomePage> {
         ),*/
       ),
     );
+  }
+
+  callApi(){
+
+    print('___________________fshfhjkfhs');
+
+    Provider.of<LivePriceProvider>(context,listen: false).getLivePrice(context);
+     livePrice = Provider.of<LivePriceProvider>(context, listen: false);
+
   }
 }

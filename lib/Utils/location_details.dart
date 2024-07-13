@@ -5,18 +5,18 @@ import 'package:atticadesign/Utils/Common.dart';
 import 'package:atticadesign/Utils/Session.dart';
 import 'package:atticadesign/Utils/constant.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:geocoder/geocoder.dart';
+// import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
 
-
-class GetLocation{
+class GetLocation {
   LocationData? _currentPosition;
   late String _address = "";
   Location location1 = Location();
-  String firstLocation = "",lat = "",lng = "";
+  String firstLocation = "", lat = "", lng = "";
   ValueChanged onResult;
 
   GetLocation(this.onResult);
+
   Future<void> getLoc() async {
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
@@ -41,9 +41,10 @@ class GetLocation{
 
     location1.onLocationChanged.listen((LocationData currentLocation) {
       print("${currentLocation.latitude} : ${currentLocation.longitude}");
-      _currentPosition = currentLocation;print(currentLocation.latitude);
+      _currentPosition = currentLocation;
+      print(currentLocation.latitude);
 
-      _getAddress(_currentPosition!.latitude,
+      /*_getAddress(_currentPosition!.latitude,
           _currentPosition!.longitude)
           .then((value) {
         _address = "${value.first.addressLine}";
@@ -62,11 +63,13 @@ class GetLocation{
           latitude = _currentPosition!.latitude!;
           longitude = _currentPosition!.longitude!;
         }
-      });
+      });*/
     });
   }
+
   ApiBaseHelper apiBase = new ApiBaseHelper();
   bool isNetwork = false;
+
   updateLocation() async {
     await App.init();
     isNetwork = await isNetworkAvailable();
@@ -88,17 +91,13 @@ class GetLocation{
         // setSnackbar(msg, context);
         if (response['status']) {
         } else {}
-      } on TimeoutException catch (_) {
-      }
-    } else {
-    }
+      } on TimeoutException catch (_) {}
+    } else {}
   }
-  Future<List<Address>> _getAddress(double? lat, double? lang) async {
+/*  Future<List<Address>> _getAddress(double? lat, double? lang) async {
     final coordinates = new Coordinates(lat, lang);
     List<Address> add =
     await Geocoder.local.findAddressesFromCoordinates(coordinates);
     return add;
-  }
-
-
+  }*/
 }

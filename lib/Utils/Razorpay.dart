@@ -35,10 +35,11 @@ class RazorPayHelper{
   bool addAmoint = false;
   bool? isWalletUset ;
   bool isOrderProduct;
+  String? walletAmount;
   RazorPayHelper(
       this.amount,
-     @required this.context, this.onResult,this.userid, this.gramValue,
-  this.isGold, this.isOrderProduct, {this.isWalletUset} );
+     this.context, this.onResult,this.userid, this.gramValue,
+  this.isGold, this.isOrderProduct, {this.isWalletUset,this.walletAmount} );
   static const _chars =
       'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   Random _rnd = Random();
@@ -47,21 +48,25 @@ class RazorPayHelper{
       length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
 
-  init(isOrderProduct,{amount, addAmointTr}){
-    addAmoint = addAmointTr;
+  init(bool isOrderProduct,{String? amount, bool? addAmointTr}){
+    addAmoint = addAmointTr ??  false;
+
     CircularProgressIndicator(color:colors.secondary2,);
+
     _razorpay = Razorpay();
-    _razorpay!.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    _razorpay!.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay!.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _razorpay?.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay?.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay?.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    print('____________gdfglgl;gkg_4');
     if(isOrderProduct){
       openCheckoutOrder(isAmooubnt: amount,addAMoun: addAmointTr);
     }else {
       openCheckout();
     }
   }
-  initiated(isOrderProduct,{amount, addAmointTr}){
-    addAmoint = addAmointTr;
+
+  initiated(bool isOrderProduct,{ String? amount, bool? addAmointTr}){
+    addAmoint = addAmointTr ?? false;
     CircularProgressIndicator(color:colors.secondary2,);
     _razorpay = Razorpay();
     _razorpay!.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess1);
@@ -106,11 +111,12 @@ class RazorPayHelper{
 
   void openCheckout() async {
     await App.init();
+
     var options = {
       'key': razorPayKey,
-      'amount': amount,
+      'amount': double.parse(amount).toInt(),
       'name': 'Sanghavi Gold',
-      "order_id": orderId,
+      "order_id":  orderId,
       'description': "Order #"+getRandomString(5),
       'external': {
         'wallets': ['paytm']
@@ -133,12 +139,12 @@ class RazorPayHelper{
     }
   }
 
-  void openCheckoutOrder({isAmooubnt, addAMoun}) async {
+  void openCheckoutOrder({String? isAmooubnt, addAMoun}) async {
     await App.init();
     var options = {
       'key': razorPayKey,
-      'amount': isAmooubnt  ,
-      'name': 'Attica Gold',
+      'amount': double.parse(isAmooubnt ?? '0.0').toInt()  ,
+      'name': 'SanghviDigi Gold',
       "order_id": orderId,
       'description': "Order #"+getRandomString(5),
       'external': {
@@ -168,7 +174,7 @@ class RazorPayHelper{
         if(gramValue != null && gramValue.toString().length > 1|| gramValue != ''
            ){
         PruchaseModel? a =  await purchaseGold(userid, amm.toString(),
-            gramValue, isGold, context);
+            gramValue, isGold, context,walletAmount);
         if(a != null && a.message != null ){
           Fluttertoast.showToast(
               backgroundColor: colors.secondary2,
@@ -187,7 +193,7 @@ class RazorPayHelper{
           Fluttertoast.showToast(
               backgroundColor: colors.secondary2,
               fontSize: 18, textColor: colors.blackTemp,
-              msg: "Amount added successfully");
+              msg: "${a.message}");
         }
     }
 
@@ -238,7 +244,7 @@ class RazorPayHelper{
       "transaction_type": "wallet",
       "user_id": App.localStorage.getString("userId").toString(),
       "order_id": "$orderId",
-      "type": "debit",
+      "type": "credit",
       "payment_method": "razorpay",
       "txn_id": "$tranxId",
       "amount": "$amount",
@@ -250,7 +256,7 @@ class RazorPayHelper{
     Navigator.pop(context);
     if (response.statusCode == 200) {
       final str = await response.stream.bytesToString();
-      print(str);
+      print('_______${str}');
       return AddAmountModel.fromJson(json.decode(str));
     } else {
       return AddAmountModel(message: "Something went wrong");

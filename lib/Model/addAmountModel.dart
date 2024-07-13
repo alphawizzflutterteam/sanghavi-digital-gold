@@ -1,7 +1,6 @@
 import 'dart:convert';
 /// error : false
 /// message : "Wallet Transaction Added Successfully"
-/// data : []
 
 AddAmountModel addAmountModelFromJson(String str) => AddAmountModel.fromJson(json.decode(str));
 String addAmountModelToJson(AddAmountModel data) => json.encode(data.toJson());

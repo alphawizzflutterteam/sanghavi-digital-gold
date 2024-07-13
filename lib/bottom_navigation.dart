@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:atticadesign/Helper/myAccount.dart';
 // import 'package:atticadesign/Helper/NewCart.dart';
 import 'package:atticadesign/Helper/myLocker.dart';
@@ -7,6 +9,7 @@ import 'package:atticadesign/screen/jelerry.dart';
 import 'package:atticadesign/screen/scan_pay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import 'Helper/Color.dart';
 
@@ -37,7 +40,7 @@ class _BottomBarState extends State<BottomBar> {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async {
-          showDialog(
+          /*showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
@@ -50,8 +53,9 @@ class _BottomBarState extends State<BottomBar> {
                   primary: colors.secondary2
                 ),
                 child: Text("YES"),
-                onPressed: () {
-                  SystemNavigator.pop();
+                onPressed: () async{
+
+                  await SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop', false);                  //SystemNavigator.pop();
                 },
               ),
               ElevatedButton(
@@ -66,8 +70,9 @@ class _BottomBarState extends State<BottomBar> {
             ],
           );
         }
-    );
-    return true;
+    );*/
+          //await SystemChannels.platform.invokeMethod<void>('SystemNavigator.pop', false);
+          return true;
     },
      child:
       Scaffold(

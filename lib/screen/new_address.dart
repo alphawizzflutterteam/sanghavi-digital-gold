@@ -9,11 +9,17 @@ import 'package:atticadesign/Utils/colors.dart';
 import 'package:atticadesign/Utils/constant.dart';
 import 'package:atticadesign/Utils/widget.dart';
 import 'package:atticadesign/notifications.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart' as location;
+
+// import 'package:geolocator/geolocator.dart' as geolocator;
+import 'package:geolocator/geolocator.dart' hide LocationAccuracy;
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geocoder/geocoder.dart';
-import 'package:geocoder/model.dart';
+// import 'package:geocoder/geocoder.dart';
+// import 'package:geocoder/model.dart';
 
 import 'package:location/location.dart';
 import 'package:sizer/sizer.dart';
@@ -635,14 +641,13 @@ class _AddNewAddressState extends State<AddNewAddress> {
           )),
     );
   }
-  Future<List<Address>> _getAddress1(String address) async {
+  Future<List<location.Location>> _getAddress1(String address) async {
     var add;
     try {
-      add = await Geocoder.local.findAddressesFromQuery(address);
-      setState(() {
-        saveStatus = false;
-      });
-      return add;
+      List<location.Location> locations  = await location.locationFromAddress(address);
+      // final coordinates = new Coordinates(lat, lang);
+      //List<Placemark> add = placemarks;
+      return locations;
     } catch (e) {
       print(e);
       setState(() {
@@ -659,12 +664,12 @@ class _AddNewAddressState extends State<AddNewAddress> {
         "${addressCon.text.toString()} ${landCon.text.toString()},${countryCon.text.toString()}";
     print(addressData);
     _getAddress1(addressData).then((value) async {
-      firstLocation = value.first.subLocality.toString();
+      /*firstLocation = value.first.subLocality.toString();
       print(value.first.coordinates.latitude.toString() +
           " | " +
-          value.first.coordinates.longitude.toString());
-      lat = value.first.coordinates.latitude.toString();
-      lng = value.first.coordinates.longitude.toString();
+          value.first.coordinates.longitude.toString());*/
+      lat = value.first.latitude.toString();
+      lng = value.first.longitude.toString();
       print("Lat" + lat);
       try {
         setState(() {
@@ -713,12 +718,12 @@ class _AddNewAddressState extends State<AddNewAddress> {
         "${addressCon.text.toString().replaceAll(",", " ")},${countryCon.text.toString()}";
     print(addressData);
     _getAddress1(addressData).then((value) async {
-      firstLocation = value.first.subLocality.toString();
+     /* firstLocation = value.first.subLocality.toString();
       print(value.first.coordinates.latitude.toString() +
           " | " +
-          value.first.coordinates.longitude.toString());
-      lat = value.first.coordinates.latitude.toString();
-      lng = value.first.coordinates.longitude.toString();
+          value.first.coordinates.longitude.toString());*/
+      lat = value.first.latitude.toString();
+      lng = value.first.longitude.toString();
       print("Lat" + lat);
       try {
         setState(() {
@@ -931,6 +936,8 @@ class _AddNewAddressState extends State<AddNewAddress> {
   }
 
   LocationData? _currentPosition;
+  Position? position;
+
 
   String _address = "",
       addr = "",
@@ -938,10 +945,10 @@ class _AddNewAddressState extends State<AddNewAddress> {
       area = "",
       city = "",
       pin = "";
-  Location location1 = Location();
+ // Location location1 = Location();
 
   Future<void> getLoc(bool status) async {
-    bool _serviceEnabled;
+   /* bool _serviceEnabled;
     PermissionStatus _permissionGranted;
 
     _serviceEnabled = await location1.serviceEnabled();
@@ -960,50 +967,67 @@ class _AddNewAddressState extends State<AddNewAddress> {
         print('no');
         return;
       }
+    }*/
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      print("checking permission here ${permission}");
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Location Not Available');
+      }
     }
+    position = await Geolocator.getCurrentPosition();
 
-    location1.onLocationChanged.listen((LocationData currentLocation) {
+    _getAddress(position?.latitude ??0.0, position?.longitude ??0.0)
+        .then((value) {
+      setState(() {
+        _address = "${value.first.locality}";
+        firstLocation = value.first.subLocality.toString();
+        addr = '${value.first.name},${value.first.subLocality}, ${value.first.locality}' ?? '';
+        landmark = value.first.street ?? '';
+        city = value.first.locality ?? '' ;
+        // pin = value.first.postalCode;
+        // print(value.first.addressLine);
+        // print(value.first.locality);
+        // print(value.first.adminArea);
+        // print(value.first.subLocality);
+        // print(value.first.postalCode);
+        if (status) {
+          addressCon.text = '$addr''$landmark';
+          //landCon.text = landmark;
+          areaCon.text = area;
+          // zipCon.text = pin;
+          cityCon.text = city;
+          lat = _currentPosition!.latitude.toString();
+          lng = _currentPosition!.longitude.toString();
+        }
+      });
+    });
+
+  /*  location1.onLocationChanged.listen((LocationData currentLocation) {
       print("${currentLocation.latitude} : ${currentLocation.longitude}");
       if (mounted) {
         setState(() {
           _currentPosition = currentLocation;
           print(currentLocation.latitude);
-          _getAddress(_currentPosition!.latitude, _currentPosition!.longitude)
-              .then((value) {
-            setState(() {
-              _address = "${value.first.addressLine}";
-              firstLocation = value.first.subLocality.toString();
-              addr ='${value.first.addressLine.split(value.first.subLocality)[0]} ${firstLocation} ';
-              landmark = value.first.locality;
-            /*  area = value.first.subLocality;
-              city = value.first.locality;*/
-              // pin = value.first.postalCode;
-              // print(value.first.addressLine);
-              // print(value.first.locality);
-              // print(value.first.adminArea);
-              // print(value.first.subLocality);
-              // print(value.first.postalCode);
-              if (status) {
-                addressCon.text = '$addr''$landmark';
-                //landCon.text = landmark;
-                areaCon.text = area;
-                // zipCon.text = pin;
-                cityCon.text = city;
-                lat = _currentPosition!.latitude.toString();
-                lng = _currentPosition!.longitude.toString();
-              }
-            });
-          });
+
         });
       }
-    });
+    });*/
   }
 
-  Future<List<Address>> _getAddress(double? lat, double? lang) async {
+/*  Future<List<Address>> _getAddress(double? lat, double? lang) async {
     final coordinates = new Coordinates(lat, lang);
     List<Address> add =
         await Geocoder.local.findAddressesFromCoordinates(coordinates);
     return add;
+  }*/
+  Future<List<location.Placemark>> _getAddress(double lat, double lang) async {
+    List<location.Placemark> placemarks = await location.placemarkFromCoordinates(lat, lang);
+    // final coordinates = new Coordinates(lat, lang);
+    //List<Placemark> add = placemarks;
+    return placemarks;
   }
 
 }

@@ -85,8 +85,8 @@ class _HelpAndSupportState extends State<HelpAndSupport> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Business Support"),
-                              Text("General Support")
+                              Text("Business Support",style: TextStyle(color: colors.blackTemp, fontSize: 14.0)),
+                              Text("General Support",style: TextStyle(color: colors.blackTemp, fontSize: 14.0))
                             ],
                           ),
                         ),
@@ -98,8 +98,8 @@ class _HelpAndSupportState extends State<HelpAndSupport> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Business@Attica.com"),
-                              Text("Support@Attica.com")
+                              Text("Business@Attica.com",style: TextStyle(color: colors.blackTemp, fontSize: 14.0)),
+                              Text("Support@Attica.com",style: TextStyle(color: colors.blackTemp, fontSize: 14.0))
                             ],
                           ),
                         ),

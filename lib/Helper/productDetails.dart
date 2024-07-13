@@ -94,6 +94,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             print(userDetailsModel.data![0].goldWallet.toString());
             availeGoldgram =
                 double.parse(userDetailsModel.data![0].goldWallet.toString());
+            availebaleSilveGram =  double.parse(userDetailsModel.data![0].silverWallet.toString());
             // goldenWallet =
             //     double.parse(userDetailsModel.data![0].goldWallet.toString()) *
             //         goldRate;
@@ -221,7 +222,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  void addCart(bool isAdded, bool isRemoved) {
+  void addCart(bool isAdded, bool isRemoved, {String? title}) {
     Map data = {};
     print("count here ${count} and ${counter}");
     data = {
@@ -235,13 +236,15 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       "is_qty_removed": "${isRemoved.toString()}",
     };
     print("checking cart data here ${data}");
-    callApi("manage_cart", data, 0);
-   setState(() {
+    callApi("manage_cart", data, 0,title: title);
+
+   /*setState(() {
      getCart();
-   });
+   });*/
   }
 
   bool loading = true;
+  bool loading2 = false;
   List<CartData> cartList = [];
   List<RatingData> peoductRatingList = [];
   int totalCount = 0;
@@ -275,21 +278,42 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  void callApi(String url, Map data, int i) async {
+  void callApi(String url, Map data, int i,{String? title}) async {
     isNetwork = await isNetworkAvailable();
     if (isNetwork) {
       try {
-        setState(() {
-          loading = false;
-        });
+        if(title == 'buyNow'){
+          setState(() {
+            loading2 = true;
+          });
+        }else {
+          setState(() {
+            loading = false;
+          });
+        }
+
         Map response =
             await apiBase.postAPICall(Uri.parse(baseUrl + url), data);
         setState(() {
           loading = true;
+          loading2 = false;
         });
         if (!response['error']) {
         setState(() {
           getCart();
+          if(title == 'buyNow'){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        NewCart(
+                          //     isGold: widget.isGold,
+                          //     gramValue: weifht!, itemCount:
+                          // count,
+                          //     type: 0,
+                          // buyNow: true,
+                        )));
+          }
           Fluttertoast.showToast(
               backgroundColor: Colors.green,
               fontSize: 18, textColor: Colors.yellow,
@@ -430,7 +454,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             height: getHeight(70),
             width: getWidth(390),
             padding: const EdgeInsets.all(8.0),
-            child: Row(
+            child: loading2
+                ? Center(child: CircularProgressIndicator(color: Color(0xffF1D459),),)
+                : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
@@ -439,6 +465,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   child: OutlinedButton(
                     onPressed: () {
                       var weight = productModel?.product![0].weight.toString().split(' ');
+                      print('${weight}');
+                      print('${availeGoldgram}');
                       print('this is grams ${double.parse(weight![0])}');
                       if(count == 0){
                         setSnackbar("Please add some quantity", context);
@@ -458,7 +486,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                            setSnackbar("Your vault balance is lower than your chosen product weight!", context);
                          }
                         }else{
-                          if(availeGoldgram >= double.parse(weight[0] * count)) {
+                          if(availebaleSilveGram >= double.parse(weight[0])* count) {
                             if (productModel?.product![0].variants![0]
                                 .cartCount ==
                                 "0") {
@@ -503,18 +531,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       String? weifht = "";
                       weifht = productModel?.product![0].weight;
                       if(count != 0) {
-                        addCart(true, false);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    NewCart(
-                                    //     isGold: widget.isGold,
-                                    //     gramValue: weifht!, itemCount:
-                                    // count,
-                                    //     type: 0,
-                                    // buyNow: true,
-                                    )));
+                        addCart(true, false,title: 'buyNow');
+
                       }
                       else{
                         setSnackbar("Please add some quantity", context);
@@ -1069,7 +1087,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ),
                   ],
                 )
-              : CircularProgressIndicator()),
+              : Center(child: CircularProgressIndicator())),
     );
   }
 

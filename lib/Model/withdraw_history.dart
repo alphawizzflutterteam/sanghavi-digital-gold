@@ -6,7 +6,7 @@ class WithdrawHistory {
   WithdrawHistory({
       bool? error, 
       String? message, 
-      List<Data>? data,}){
+      List<WithdrawRequestData>? data,}){
     _error = error;
     _message = message;
     _data = data;
@@ -18,23 +18,23 @@ class WithdrawHistory {
     if (json['data'] != null) {
       _data = [];
       json['data'].forEach((v) {
-        _data?.add(Data.fromJson(v));
+        _data?.add(WithdrawRequestData.fromJson(v));
       });
     }
   }
   bool? _error;
   String? _message;
-  List<Data>? _data;
+  List<WithdrawRequestData>? _data;
 WithdrawHistory copyWith({  bool? error,
   String? message,
-  List<Data>? data,
+  List<WithdrawRequestData>? data,
 }) => WithdrawHistory(  error: error ?? _error,
   message: message ?? _message,
   data: data ?? _data,
 );
   bool? get error => _error;
   String? get message => _message;
-  List<Data>? get data => _data;
+  List<WithdrawRequestData>? get data => _data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -60,8 +60,8 @@ WithdrawHistory copyWith({  bool? error,
 /// created_at : "2022-10-18 17:01:52"
 /// updated_at : "2022-10-18 17:01:52"
 
-class Data {
-  Data({
+class WithdrawRequestData {
+  WithdrawRequestData({
       String? id, 
       String? userId, 
       String? amount, 
@@ -72,6 +72,7 @@ class Data {
       String? accountHolderName, 
       String? isApproved, 
       String? createdAt, 
+      String? remarks,
       String? updatedAt,}){
     _id = id;
     _userId = userId;
@@ -86,7 +87,7 @@ class Data {
     _updatedAt = updatedAt;
 }
 
-  Data.fromJson(dynamic json) {
+  WithdrawRequestData.fromJson(dynamic json) {
     _id = json['id'];
     _userId = json['user_id'];
     _amount = json['amount'];
@@ -98,6 +99,7 @@ class Data {
     _isApproved = json['is_approved'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
+    _remarks = json['remarks'];
   }
   String? _id;
   String? _userId;
@@ -110,9 +112,11 @@ class Data {
   String? _isApproved;
   String? _createdAt;
   String? _updatedAt;
-Data copyWith({  String? id,
+  String? _remarks;
+WithdrawRequestData copyWith({  String? id,
   String? userId,
   String? amount,
+  String? remarks,
   String? upiId,
   String? bankName,
   String? accountNumber,
@@ -121,9 +125,10 @@ Data copyWith({  String? id,
   String? isApproved,
   String? createdAt,
   String? updatedAt,
-}) => Data(  id: id ?? _id,
+}) => WithdrawRequestData(  id: id ?? _id,
   userId: userId ?? _userId,
   amount: amount ?? _amount,
+  remarks: remarks ?? _remarks,
   upiId: upiId ?? _upiId,
   bankName: bankName ?? _bankName,
   accountNumber: accountNumber ?? _accountNumber,
@@ -135,6 +140,7 @@ Data copyWith({  String? id,
 );
   String? get id => _id;
   String? get userId => _userId;
+  String? get remarks => _remarks;
   String? get amount => _amount;
   String? get upiId => _upiId;
   String? get bankName => _bankName;

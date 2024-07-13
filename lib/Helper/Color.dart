@@ -44,6 +44,11 @@ extension colors on ColorScheme {
   Color get simmerHigh =>
       this.brightness == Brightness.dark ? darkColor : Colors.grey[100]!;
 
+// LinearGradient gradient = colorScheme.gradient;
+
+
+
+
   static Color darkIcon = Color(0xff9B9B9B);
 
   static const Color grad1Color =colors.secondary2;
@@ -51,6 +56,9 @@ extension colors on ColorScheme {
   static const Color lightWhite2 = Color(0xffEEF2F3);
   static const Color primary2 = Color(0xff0F261E);
   static const Color secondary2 = Color(0xffE0BE41);
+  static const Color gold1 = Color(0xffF1D459);
+  static const Color gold2 = Color(0xffB27E29);
+
 
 
   static const Color yellow = Color(0xfff1dd90);
@@ -82,6 +90,7 @@ extension colors on ColorScheme {
   static const Color black54 = Colors.black54;
   static const Color black12 = Colors.black12;
   static const Color disableColor = Color(0xffEEF2F9);
+  static const Color green = Color(0xFF4CAF50);
 
   static const Color blackTemp = Color(0xff000000);
 

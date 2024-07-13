@@ -603,7 +603,7 @@ class _ScanTransactionState extends State<ScanTransaction> {
               ),
               paymentMode(),
 
-              isWallet == true &&  isGoldWallet == false || isSilverWallet == false ?
+              isWallet == true /*&&  isGoldWallet == false || isSilverWallet == false*/ ?
               Padding(
                 padding: const EdgeInsets.only(
                     left: 10,right: 10,

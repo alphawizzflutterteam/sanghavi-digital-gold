@@ -9,6 +9,7 @@ import 'package:atticadesign/bottom_navigation.dart';
 import 'package:atticadesign/notifications.dart';
 import 'package:atticadesign/privacypolicy.dart';
 import 'package:atticadesign/screen/address_list_view.dart';
+import 'package:atticadesign/screen/order_history.dart';
 import 'package:atticadesign/screen/order_list.dart';
 import 'package:atticadesign/splash.dart';
 import 'package:atticadesign/termsandcondition.dart';
@@ -357,12 +358,16 @@ class _MyAccountState extends State<MyAccount> {
                           leading: Image.asset("assets/images/helpsupport.png",height: 20,
                             color: colors.blackTemp,),
                           onTap: (){
-                            Navigator.push(
+                            /*Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => Transaction()),
+                            );*/
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OrderHistory()),
                             );
                           },
-                          title: Text("Transaction History",style: TextStyle(color: colors.blackTemp,fontSize: 18),),
+                          title: Text("Order History",style: TextStyle(color: colors.blackTemp,fontSize: 18),),
                           trailing: Image.asset("assets/images/rightarrow.png",height: 20,
                             color: colors.blackTemp,),
 

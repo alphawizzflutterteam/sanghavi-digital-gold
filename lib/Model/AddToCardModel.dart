@@ -1,7 +1,6 @@
 import 'dart:convert';
 /// error : false
 /// message : "Add Successfully"
-/// data : []
 
 AddToCardModel addToCardModelFromJson(String str) => AddToCardModel.fromJson(json.decode(str));
 String addToCardModelToJson(AddToCardModel data) => json.encode(data.toJson());

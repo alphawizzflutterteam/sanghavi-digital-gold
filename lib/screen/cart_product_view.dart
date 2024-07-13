@@ -27,7 +27,7 @@ class CartProductView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: getWidth(330),
-      height: getHeight(130),
+      height: getHeight(150),
       margin: EdgeInsets.only(bottom: getHeight(10)),
       decoration: boxDecoration(
         radius: 15,
@@ -93,6 +93,7 @@ class CartProductView extends StatelessWidget {
                     ),
                     if(model.size != null && model.size.toString() != "0")
                       text("Size ${model.size.toString() ?? ""} ", fontSize: 10.sp, fontFamily: fontRegular),
+                    text("Type: ${model.productDetails?[0].categoryName}", fontSize: 10.sp, fontFamily: fontRegular),
 
                     Container(
                       child: Row(
@@ -112,7 +113,7 @@ class CartProductView extends StatelessWidget {
                               bgColor: colors.secondary2,
                             ),
                             child: parseInt(model.qty)>0
-                                ?Row(
+                                ? Row(
                               children: [
                                 InkWell(
                                   onTap: onRemove,
@@ -253,7 +254,7 @@ class CartProductView1 extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          text("₹"+model.variants![0].price.toString(), fontSize: 14.sp, fontFamily: fontBold),
+                          text("₹"+model.variants![0].specialPrice.toString(), fontSize: 14.sp, fontFamily: fontBold),
                         ],
                       ),
                       boxHeight(5),
@@ -517,7 +518,7 @@ class OrderView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: text(getString1(model.name.toString()),
+                        child: text(getString1('Order Id: #${model.id}'),
                             fontSize: 14.sp, fontFamily: fontRegular,textColor: colors.blackTemp),
                       ),
                       Column(
@@ -530,7 +531,7 @@ class OrderView extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      text("₹"+model.totalPayable.toString(),
+                      text("₹"+(double.parse(model!.finalTotal!.toString()) - double.parse(model!.deliveryCharge.toString())).toString(),
                      // orderItems![0].price.toString(),
                           fontSize: 14.sp, fontFamily: fontMedium),
                     ],
@@ -542,7 +543,7 @@ class OrderView extends StatelessWidget {
                       Row(
                         children: [
                           text("Qty. : ", fontSize: 10.sp, fontFamily: fontRegular),
-                          text(model.orderItems![0].quantity.toString(), fontSize: 10.sp, fontFamily: fontRegular),
+                          text(model.orderItems!.length.toString(), fontSize: 10.sp, fontFamily: fontRegular),
                         ],
                       ),
                       text(DateFormat("dd-MM-yyyy").format(DateTime.parse(model.dateAdded!)),

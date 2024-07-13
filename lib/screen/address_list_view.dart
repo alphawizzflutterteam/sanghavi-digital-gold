@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:atticadesign/new_cart.dart';
 import 'package:atticadesign/notifications.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
@@ -190,6 +191,7 @@ class _AddressListState extends State<AddressList> {
                                       App.localStorage.setString("type",
                                           addressList[index].type.toString());
                                     });
+                                    curIndex =index ;
                                     Navigator.pop(context, {
                                       'address': addressList[index].address,
                                       'type': addressList[index].type.toString()
@@ -352,7 +354,7 @@ class _AddressListState extends State<AddressList> {
                                                   color: colors.blackTemp,
                                                 ),
                                               ),
-                                              widget.check
+                                              /*widget.check
                                                   ? Icon(
                                                       addressId ==
                                                               addressList[index]
@@ -364,8 +366,13 @@ class _AddressListState extends State<AddressList> {
                                                       color:
                                                           MyColorName.colorIcon,
                                                     )
-                                                  : Icon(Icons.edit,
-                                                      color: colors.blackTemp),
+                                                  : InkWell(
+                                                onTap: (){
+
+                                                },
+                                                    child: Icon(Icons.edit,
+                                                        color: colors.blackTemp),
+                                                  ),*/
                                             ],
                                           )),
                                     ],
