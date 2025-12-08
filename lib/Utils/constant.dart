@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:sizer/sizer.dart';
 
-
 const fontRegular = 'Regular';
 const fontMedium = 'Medium';
 const fontSemibold = 'Semibold';
@@ -28,7 +27,6 @@ const spacing_large = 24.0;
 const spacing_xlarge = 32.0;
 const spacing_xxLarge = 40.0;
 
-
 final int timeOut = 60;
 const int perPage = 10;
 
@@ -37,10 +35,11 @@ bool notificationStatus = true;
 int notificationId = 1;
 final String packageName = 'com.sanghavi.user';
 const String languageCode = 'languageCode';
-final String baseUrl =
-    "https://developmentalphawizz.com/jeevan/app/v1/api/";
-    // 'https://alphawizztest.tk/Atticadigitamarketing/app/v1/api/';
-final String playUrl = "https://play.google.com/store/apps/details?id=$packageName";
+// final String baseUrl = "https://developmentalphawizz.com/jeevan/app/v1/api/";
+final String baseUrl = "https://sdg.sanghavijewellers.com/app/v1/api/";
+// 'https://alphawizztest.tk/Atticadigitamarketing/app/v1/api/';
+final String playUrl =
+    "https://play.google.com/store/apps/details?id=$packageName";
 final String livePrice = "${baseUrl}get_rates";
 String? curTikId = '';
 String? fcmToken;
@@ -49,53 +48,73 @@ String? privacy = '';
 String? returned = "";
 String? delivery = "";
 String? company = "";
-String address="";
-String homeAddress="";
-double latitude=0;
+String address = "";
+String homeAddress = "";
+double latitude = 0;
 double longitude = 0;
-String proImage="";
+String proImage = "";
 int likeCount = 0;
-String addressId="";
-String bookingId ="";
+String addressId = "";
+String bookingId = "";
 String deliveryLocation = "", name = "", email = "", mobile = "", image = "";
-String bankName = "",accountNumber = "",code="",cheque = "",insurance = "";
-String drivingImage = "",brand = "",model2 = "", number = "",refer ="",panCard ="",adharCard = "",vehicle = "";
+String bankName = "",
+    accountNumber = "",
+    code = "",
+    cheque = "",
+    insurance = "";
+String drivingImage = "",
+    brand = "",
+    model2 = "",
+    number = "",
+    refer = "",
+    panCard = "",
+    adharCard = "",
+    vehicle = "";
 bool doLock = false;
 String rating = "0";
 bool notification = true;
-String gender1 = "",dob = "";
+String gender1 = "", dob = "";
 String profileStatus = "";
-String razorPayKey="rzp_test_CpvP0qcfS4CSJD";
-String razorPaySecret="rzp_test_CzVEZjetT2HvfwMDkMfaO6Oq1JD1BpiWuQseSX";
+String razorPayKey = "rzp_test_CpvP0qcfS4CSJD";
+String razorPaySecret = "rzp_test_CzVEZjetT2HvfwMDkMfaO6Oq1JD1BpiWuQseSX";
 // final String baseUrl1 = 'https://alphawizztest.tk/TAXI_APP/api/';
-double getHeight(double height){
+double getHeight(double height) {
   double tempHeight = 0.0;
-  tempHeight = ((height * 100)/812).h;
+  tempHeight = ((height * 100) / 812).h;
   return tempHeight;
-}
-double getWidth(double width){
-  double tempWidth = 0.0;
-  tempWidth = ((width * 100)/375).w;
-  return tempWidth;
-}
-double getHeight1(double height){
-  double tempHeight = 0.0;
-  tempHeight = ((height * 100)/1280).h;
-  return tempHeight;
-}
-double getWidth1(double width){
-  double tempWidth = 0.0;
-  tempWidth = ((width * 100)/720).w;
-  return tempWidth;
-}
-Widget boxWidth(double width){
-  return SizedBox(width: getWidth(width),);
 }
 
-Widget boxHeight(double height){
-  return SizedBox(height: getHeight(height),);
+double getWidth(double width) {
+  double tempWidth = 0.0;
+  tempWidth = ((width * 100) / 375).w;
+  return tempWidth;
 }
-navigateScreen(BuildContext context,Widget widget){
+
+double getHeight1(double height) {
+  double tempHeight = 0.0;
+  tempHeight = ((height * 100) / 1280).h;
+  return tempHeight;
+}
+
+double getWidth1(double width) {
+  double tempWidth = 0.0;
+  tempWidth = ((width * 100) / 720).w;
+  return tempWidth;
+}
+
+Widget boxWidth(double width) {
+  return SizedBox(
+    width: getWidth(width),
+  );
+}
+
+Widget boxHeight(double height) {
+  return SizedBox(
+    height: getHeight(height),
+  );
+}
+
+navigateScreen(BuildContext context, Widget widget) {
   Navigator.push(
       context,
       PageTransition(
@@ -104,7 +123,8 @@ navigateScreen(BuildContext context,Widget widget){
         duration: Duration(milliseconds: 500),
       ));
 }
-navigateBackScreen(BuildContext context,Widget widget){
+
+navigateBackScreen(BuildContext context, Widget widget) {
   Navigator.pushReplacement(
       context,
       PageTransition(
@@ -113,9 +133,11 @@ navigateBackScreen(BuildContext context,Widget widget){
         duration: Duration(milliseconds: 500),
       ));
 }
-back(BuildContext context){
+
+back(BuildContext context) {
   Navigator.pop(context);
 }
+
 const String PLACED = 'confirmed';
 const String SHIPED = 'arrived';
 const String PROCESSED = 'picked up';

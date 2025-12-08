@@ -36,7 +36,7 @@ class _FlutterContactsExampleState extends State<FlutterContactsExample> {
       ));*/
   Widget build(BuildContext context) {
     return Scaffold(
-     // backgroundColor: Color(0xFF15654F),
+      // backgroundColor: Color(0xFF15654F),
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: colors.primaryNew,
@@ -68,7 +68,7 @@ class _FlutterContactsExampleState extends State<FlutterContactsExample> {
             title: Text(_contacts![i].displayName),
             onTap: () async {
               final fullContact =
-              await FlutterContacts.getContact(_contacts![i].id);
+                  await FlutterContacts.getContact(_contacts![i].id);
               await Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => ContactPage(fullContact!)));
             }));
@@ -83,21 +83,21 @@ class ContactPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text(contact.displayName)),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('First name: ${contact.name.first}'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Last name: ${contact.name.last}'),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-              'Phone number: ${contact.phones.isNotEmpty ? contact.phones.first.number : '(none)'}'),
-        ),
-      ]));
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('First name: ${contact.name.first}'),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('Last name: ${contact.name.last}'),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                  'Phone number: ${contact.phones.isNotEmpty ? contact.phones.first.number : '(none)'}'),
+            ),
+          ]));
 }
